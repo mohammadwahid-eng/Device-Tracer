@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_dashboard"
+            android:icon="@drawable/ic_dashboard"
+            android:title="@string/label_dashboard"/>
+
+        <item android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_profile"
+            android:title="@string/label_profile"/>
+
+        <item android:id="@+id/nav_friends"
+            android:icon="@drawable/ic_people"
+            android:title="@string/label_friends"/>
+
+        <item android:id="@+id/nav_notifications"
+            android:icon="@drawable/ic_notifications"
+            android:title="@string/label_notifications"/>
+
+        <item android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/label_settings"/>
+
+        <item android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="@string/label_logout"/>
+    </group>
+
+    <item android:title="Other">
+        <menu>
+            <item android:id="@+id/nav_share"
+                android:icon="@drawable/ic_share"
+                android:title="@string/label_share" />
+
+            <item android:id="@+id/nav_support"
+                android:icon="@drawable/ic_help"
+                android:title="@string/label_support" />
+
+            <item android:id="@+id/nav_privacy"
+                android:icon="@drawable/ic_privacy"
+                android:title="@string/label_privacy" />
+        </menu>
+    </item>
+</menu>

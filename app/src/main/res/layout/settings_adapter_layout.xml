@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:text="@string/label_name"
+        android:id="@+id/settings_option"
+        android:textSize="15sp"
+        android:paddingTop="15dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="20dp"
+        android:layout_weight=".8"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+    <Switch
+        android:id="@+id/settings_option_value"
+        android:theme="@style/AppSwitch"
+        android:paddingRight="20dp"
+        android:layout_weight=".2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
