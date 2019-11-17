@@ -106,11 +106,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 				_nav_email.setText(userData.getEmail());
 
 				if(userData.getPhoto().length() > 0) {
-					StorageReference photo = fStorage.getReference("Photos").child(mAuth.getUid());
-					photo.child(userData.getPhoto()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+					fStorage.getReference("Photos").child(userData.getPhoto()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 						@Override
 						public void onSuccess(Uri uri) {
-							Picasso.get().load(uri).into(_nav_avatar);
+							Picasso.get().load(uri).resize(50, 50).centerCrop().into(_nav_avatar);
 						}
 					}).addOnFailureListener(new OnFailureListener() {
 						@Override

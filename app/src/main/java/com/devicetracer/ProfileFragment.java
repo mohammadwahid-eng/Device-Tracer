@@ -40,7 +40,9 @@ import static android.app.Activity.RESULT_OK;
 public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 	private FirebaseAuth mAuth;
-	private StorageReference mStorageRef;
+	private FirebaseDatabase fDatabase;
+	private StorageReference fStorage;
+
 	private final int PICK_IMAGE_REQUEST = 1;
 
 	private TextView _pname, _name, _email, _mobile, _pimei, _imei, _changeAvatar;
@@ -51,8 +53,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mAuth = FirebaseAuth.getInstance();
-		mStorageRef = FirebaseStorage.getInstance().getReference("Uploads");
+		mAuth       = FirebaseAuth.getInstance();
+		fDatabase   = FirebaseDatabase.getInstance();
+		fStorage    = FirebaseStorage.getInstance().getReference("Photos");
 		progressDialog = new ProgressDialog(getActivity(), R.style.AppProgressDialog);
 		progressDialog.setMessage("Processing");
 		progressDialog.setCanceledOnTouchOutside(false);
@@ -102,7 +105,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		_pimei.setText(data.getImei());
 
 		if(data.getPhoto().length() > 0) {
-			mStorageRef.child(data.getPhoto()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+			fStorage.child(data.getPhoto()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 				@Override
 				public void onSuccess(Uri uri) {
 					Picasso.get().load(uri).into(_avatar);
@@ -190,16 +193,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
 			progressDialog.show();
 			imageURI = data.getData();
-			Picasso.get().load(imageURI).into(_avatar);
+			Picasso.get().load(imageURI).resize(70, 70).centerCrop().into(_avatar);
 
 			final String filename = System.currentTimeMillis() + "." + getMimeType(getActivity().getApplicationContext(), imageURI);
+			StorageReference photo = fStorage.child(filename);
 
-			StorageReference sref = mStorageRef.child(filename);
-
-			sref.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+			photo.putFile(imageURI).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 				@Override
 				public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-					FirebaseDatabase.getInstance().getReference("Users").child(mAuth.getCurrentUser().getUid()).child("photo").setValue(filename);
+					fDatabase.getReference("Users").child(mAuth.getUid()).child("photo").setValue(filename);
 					progressDialog.hide();
 					Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
 				}
