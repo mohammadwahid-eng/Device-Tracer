@@ -1,18 +1,16 @@
 package com.devicetracer;
 
 public class User {
-
 	private String name;
-	private String email;
-	private String imei;
 	private String mobile;
+	private String imei;
 	private String photo;
+
 	public User() {
 	}
 
-	public User(String name, String email, String mobile, String imei, String photo) {
+	public User(String name, String mobile, String imei, String photo) {
 		this.name = name;
-		this.email = email;
 		this.mobile = mobile;
 		this.imei = imei;
 		this.photo = photo;
@@ -26,12 +24,12 @@ public class User {
 		this.name = name;
 	}
 
-	public String getEmail() {
-		return email;
+	public String getMobile() {
+		return mobile;
 	}
 
-	public void setEmail(String emil) {
-		this.email = emil;
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
 	}
 
 	public String getImei() {
@@ -42,15 +40,11 @@ public class User {
 		this.imei = imei;
 	}
 
-	public String getMobile() {
-		return mobile;
+	public String getPhoto() {
+		return photo;
 	}
 
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
+	public void setPhoto(String photo) {
+		this.photo = photo;
 	}
-
-	public String getPhoto() { return photo; }
-
-	public void setPhoto(String photo) { this.photo = photo; }
 }

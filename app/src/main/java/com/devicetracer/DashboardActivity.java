@@ -31,7 +31,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -86,43 +85,38 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 		_nav_name   = navigationView.getHeaderView(0).findViewById(R.id.navigation_name);
 		_nav_email  = navigationView.getHeaderView(0).findViewById(R.id.navigation_email);
 
-		setNavHeaderData();
+		showNavHeaderData();
 
 		//getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new DashboardFragment()).commit();
 	}
 
-	private void setNavHeaderData() {
-		DatabaseReference user = fDatabase.getReference("Users").child(mAuth.getUid());
-		user.addValueEventListener(new ValueEventListener() {
+	private void showNavHeaderData() {
+		fDatabase.getReference("Users").child(mAuth.getUid()).addValueEventListener(new ValueEventListener() {
 			@Override
-			public void onDataChange(DataSnapshot dataSnapshot) {
-				User userData = dataSnapshot.getValue(User.class);
-				String sname = userData.getName();
-				if(sname.length() > 20) {
-					sname = sname.substring(0, 20).concat("..");
-				}
-
-				_nav_name.setText(sname);
-				_nav_email.setText(userData.getEmail());
-
-				if(userData.getPhoto().length() > 0) {
-					fStorage.getReference("Photos").child(userData.getPhoto()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-						@Override
-						public void onSuccess(Uri uri) {
-							Picasso.get().load(uri).resize(50, 50).centerCrop().into(_nav_avatar);
-						}
-					}).addOnFailureListener(new OnFailureListener() {
-						@Override
-						public void onFailure(@NonNull Exception exception) {
-							Toast.makeText(getApplicationContext(), "Picture loading failed at navigation header.", Toast.LENGTH_SHORT).show();
-						}
-					});
-				}
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				User data = dataSnapshot.getValue(User.class);
+				_nav_name.setText(data.getName());
+				_nav_email.setText(mAuth.getCurrentUser().getEmail());
+				showProfilePicture();
 			}
 
 			@Override
-			public void onCancelled(DatabaseError error) {
-				Toast.makeText(getApplicationContext(), "Failed to load logged user data at navigation header.", Toast.LENGTH_SHORT).show();
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+				Toast.makeText(getApplicationContext(), "IMEI and Mobile number loading failed.", Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+
+	private void showProfilePicture() {
+		fStorage.getReference("Photos").child(mAuth.getUid()+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+			@Override
+			public void onSuccess(Uri uri) {
+				Picasso.get().load(uri).placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar).into(_nav_avatar);
+			}
+		}).addOnFailureListener(new OnFailureListener() {
+			@Override
+			public void onFailure(@NonNull Exception exception) {
+				//Toast.makeText(getApplicationContext(), "Failed to load profile picture. Error: "+exception.getMessage(), Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -217,9 +211,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 			@Override
 			public void onSuccess(Location location) {
 				if (location != null) {
-					DeviceData deviceData = new DeviceData(location);
+					DeviceLocation deviceLocation = new DeviceLocation(location.getAccuracy(), location.getLatitude(), location.getLongitude(), location.getTime());
 					DatabaseReference device = fDatabase.getReference("Devices").child(getDeviceImei());
-					device.setValue(deviceData);
+					device.setValue(deviceLocation);
 				}
 			}
 		});
@@ -254,7 +248,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 				Manifest.permission.ACCESS_COARSE_LOCATION,
 				Manifest.permission.ACCESS_FINE_LOCATION,
 				Manifest.permission.READ_PHONE_STATE,
-				Manifest.permission.READ_EXTERNAL_STORAGE
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
 		};
 		if (EasyPermissions.hasPermissions(this, perms)) {
 			hasPermission = true;
@@ -271,7 +266,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
 	@Override
 	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		if (EasyPermissions.somePermissionPermanentlyDenied(WelcomeActivity.activity, perms)) {
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
 			new AppSettingsDialog.Builder(this).build().show();
 		}
 	}

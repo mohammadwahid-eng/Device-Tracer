@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -62,7 +61,8 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
 				Manifest.permission.ACCESS_COARSE_LOCATION,
 				Manifest.permission.ACCESS_FINE_LOCATION,
 				Manifest.permission.READ_PHONE_STATE,
-				Manifest.permission.READ_EXTERNAL_STORAGE
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
 		};
 		if (EasyPermissions.hasPermissions(this, perms)) {
 			hasPermission = true;
@@ -79,7 +79,7 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
 
 	@Override
 	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		if (EasyPermissions.somePermissionPermanentlyDenied(WelcomeActivity.activity, perms)) {
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
 			new AppSettingsDialog.Builder(this).build().show();
 		}
 	}

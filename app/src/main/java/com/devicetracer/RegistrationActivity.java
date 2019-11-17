@@ -140,12 +140,12 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 						if (task.isSuccessful()) {
 
 							DatabaseReference user = fDatabase.getReference("Users").child(mAuth.getUid());
-							User userData = new User(name, email, mobile, imei, photo);
+							User userData = new User(name, mobile, imei, photo);
 							user.setValue(userData);
 
-							DeviceData deviceData = new DeviceData(fLocation);
+							DeviceLocation deviceLocation = new DeviceLocation(fLocation.getAccuracy(), fLocation.getLatitude(), fLocation.getLongitude(), fLocation.getTime());
 							DatabaseReference device = fDatabase.getReference("Devices").child(imei);
-							device.setValue(deviceData);
+							device.setValue(deviceLocation);
 
 							progressDialog.hide();
 							Toast.makeText(getApplicationContext(), "Registration completed", Toast.LENGTH_SHORT).show();
@@ -204,7 +204,8 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 				Manifest.permission.ACCESS_COARSE_LOCATION,
 				Manifest.permission.ACCESS_FINE_LOCATION,
 				Manifest.permission.READ_PHONE_STATE,
-				Manifest.permission.READ_EXTERNAL_STORAGE
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
 		};
 		if (EasyPermissions.hasPermissions(this, perms)) {
 			hasPermission = true;
@@ -221,7 +222,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 
 	@Override
 	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		if (EasyPermissions.somePermissionPermanentlyDenied(WelcomeActivity.activity, perms)) {
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
 			new AppSettingsDialog.Builder(this).build().show();
 		}
 	}
