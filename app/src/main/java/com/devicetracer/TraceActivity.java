@@ -1,29 +1,41 @@
 package com.devicetracer;
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.github.abdularis.civ.CircleImageView;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -36,8 +48,15 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	public boolean hasPermission;
 
 	private GoogleMap gmap;
+	private MarkerOptions marker;
+	private LatLng geoCord;
+
 	private FirebaseAuth mAuth;
 	private FirebaseDatabase fDatabase;
+	private FirebaseStorage fStorage;
+	private FusedLocationProviderClient fusedLocationClient;
+
+	private ProgressDialog progressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,44 +66,15 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 
 		mAuth = FirebaseAuth.getInstance();
 		fDatabase = FirebaseDatabase.getInstance();
+		fStorage    = FirebaseStorage.getInstance();
+
+		fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+		progressDialog = new ProgressDialog(this, R.style.AppProgressDialog);
+		progressDialog.setCanceledOnTouchOutside(false);
 
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
-
-		showMyLocation();
-	}
-
-	private void showMyLocation() {
-
-		fDatabase.getReference("Devices").child(getDeviceImei()).addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				DeviceLocation device = dataSnapshot.getValue(DeviceLocation.class);
-				LatLng location = new LatLng(device.getLatitude(), device.getLongitude());
-				loadMap(location);
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-
-			}
-		});
-	}
-
-	private String getDeviceImei() {
-		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		String imei;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-				//EasyPermission module will handle the permission
-			}
-		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			imei = tm.getImei();
-		} else {
-			imei = tm.getDeviceId();
-		}
-		return imei;
 	}
 
 	@Override
@@ -102,16 +92,61 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
+		progressDialog.setMessage("Loading");
+		progressDialog.show();
 		gmap = googleMap;
+
+		fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+			@Override
+			public void onSuccess(Location location) {
+				if (location != null) {
+					marker = new MarkerOptions();
+					geoCord = new LatLng(location.getLatitude(), location.getLongitude());
+					fStorage.getReference("Photos").child(mAuth.getUid()+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+						@Override
+						public void onSuccess(Uri uri) {
+							progressDialog.hide();
+							marker.position(geoCord);
+							marker.title("WAHID");
+							marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(uri)));
+							gmap.addMarker(marker);
+							gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
+
+						}
+					}).addOnFailureListener(new OnFailureListener() {
+						@Override
+						public void onFailure(@NonNull Exception exception) {
+							progressDialog.hide();
+							marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
+							gmap.addMarker(marker);
+							gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
+						}
+					});
+				}
+			}
+		});
 	}
 
-	public void loadMap(LatLng loc) {
-		gmap.clear();
-		MarkerOptions marker = new MarkerOptions();
-		marker.position(loc);
-		marker.title("Market Title");
-		gmap.addMarker(marker);
-		gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15));
+	private Bitmap mapMarker(Uri uri) {
+		View markerView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.map_marker, null);
+
+		ImageView markerIcon = markerView.findViewById(R.id.gmarker);
+		CircleImageView markerPhoto = markerView.findViewById(R.id.mphoto);
+
+		markerIcon.setImageResource(R.drawable.ic_marker);
+		Picasso.get().load(uri).placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar).into(markerPhoto);
+
+		markerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+		markerView.layout(0, 0, markerView.getMeasuredWidth(), markerView.getMeasuredHeight());
+		markerView.buildDrawingCache();
+		Bitmap marker = Bitmap.createBitmap(markerView.getMeasuredWidth(), markerView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(marker);
+		canvas.drawColor(Color.WHITE, PorterDuff.Mode.SRC_IN);
+		Drawable drawable = markerView.getBackground();
+		if (drawable != null)
+			drawable.draw(canvas);
+		markerView.draw(canvas);
+		return marker;
 	}
 
 	@AfterPermissionGranted(123)
