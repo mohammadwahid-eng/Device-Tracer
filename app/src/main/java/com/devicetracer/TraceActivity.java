@@ -2,6 +2,7 @@ package com.devicetracer;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,13 +10,16 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +37,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
@@ -96,33 +103,62 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		progressDialog.show();
 		gmap = googleMap;
 
-		fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+		fDatabase.getReference("Devices").child(getDeviceImei()).addValueEventListener(new ValueEventListener() {
 			@Override
-			public void onSuccess(Location location) {
-				if (location != null) {
-					marker = new MarkerOptions();
-					geoCord = new LatLng(location.getLatitude(), location.getLongitude());
-					fStorage.getReference("Photos").child(mAuth.getUid()+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-						@Override
-						public void onSuccess(Uri uri) {
-							progressDialog.hide();
-							marker.position(geoCord);
-							marker.title("WAHID");
-							marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(uri)));
-							gmap.addMarker(marker);
-							gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				DeviceLocation deviceData = dataSnapshot.getValue(DeviceLocation.class);
+				setMarker(deviceData);
+			}
 
-						}
-					}).addOnFailureListener(new OnFailureListener() {
-						@Override
-						public void onFailure(@NonNull Exception exception) {
-							progressDialog.hide();
-							marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
-							gmap.addMarker(marker);
-							gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
-						}
-					});
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+				progressDialog.hide();
+				Toast.makeText(getApplicationContext(), "Error: "+databaseError.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+
+	private void setMarker(DeviceLocation deviceData) {
+		gmap.clear();
+		geoCord = new LatLng(deviceData.getLatitude(), deviceData.getLongitude());
+		marker = new MarkerOptions();
+		marker.position(geoCord);
+		setMarkerPhoto();
+	}
+
+	private void setMarkerPhoto() {
+		fDatabase.getReference("Users").child(mAuth.getUid()).addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				User userData = dataSnapshot.getValue(User.class);
+				marker.title(userData.getName());
+				marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
+
+				if(userData.getPhoto().length()>0) {
+					getMarkerPhoto(userData.getPhoto());
+				} else {
+					gmap.addMarker(marker);
+					gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
+					progressDialog.hide();
 				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+				progressDialog.hide();
+				Toast.makeText(getApplicationContext(), "Error: "+databaseError.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+
+	private void getMarkerPhoto(String photo) {
+		fStorage.getReference("Photos").child(photo).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+			@Override
+			public void onSuccess(Uri uri) {
+				marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(uri)));
+				gmap.addMarker(marker);
+				gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
+				progressDialog.hide();
 			}
 		});
 	}
@@ -134,7 +170,7 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		CircleImageView markerPhoto = markerView.findViewById(R.id.mphoto);
 
 		markerIcon.setImageResource(R.drawable.ic_marker);
-		Picasso.get().load(uri).placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar).into(markerPhoto);
+		Picasso.get().load(uri).placeholder(R.drawable.ic_avatar).into(markerPhoto);
 
 		markerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 		markerView.layout(0, 0, markerView.getMeasuredWidth(), markerView.getMeasuredHeight());
@@ -147,6 +183,22 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 			drawable.draw(canvas);
 		markerView.draw(canvas);
 		return marker;
+	}
+
+	private String getDeviceImei() {
+		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		String imei;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+				//EasyPermission module will handle the permission
+			}
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			imei = tm.getImei();
+		} else {
+			imei = tm.getDeviceId();
+		}
+		return imei;
 	}
 
 	@AfterPermissionGranted(123)

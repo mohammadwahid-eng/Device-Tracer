@@ -85,7 +85,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 				_name.setText(data.getName());
 				_mobile.setText(data.getMobile());
 				_imei.setText(data.getImei());
-				showProfilePicture();
+				if(data.getPhoto().length()>0) {
+					showProfilePicture(data.getPhoto());
+				}
 			}
 
 			@Override
@@ -95,16 +97,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		});
 	}
 
-	private void showProfilePicture() {
-		fStorage.getReference("Photos").child(mAuth.getUid()+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+	private void showProfilePicture(String photo) {
+		fStorage.getReference("Photos").child(photo).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 			@Override
 			public void onSuccess(Uri uri) {
-				Picasso.get().load(uri).placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar).into(_avatar);
-			}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception exception) {
-				//Toast.makeText(getContext(), "Failed to load profile picture. Error: "+exception.getMessage(), Toast.LENGTH_LONG).show();
+				Picasso.get().load(uri).into(_avatar);
 			}
 		});
 	}
@@ -148,12 +145,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			bitmap.compress(Bitmap.CompressFormat.JPEG, 75, baos);
 			byte[] data = baos.toByteArray();
 
-			UploadTask uploadTask = fStorage.getReference("Photos").child(mAuth.getUid()+".jpg").putBytes(data);
+			final String filename = mAuth.getUid() + ".jpg";
+
+			UploadTask uploadTask = fStorage.getReference("Photos").child(filename).putBytes(data);
 			uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 				@Override
 				public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 					progressDialog.hide();
-					fDatabase.getReference("Users").child(mAuth.getUid()).child("photo").setValue(mAuth.getUid()+".jpg");
+					fDatabase.getReference("Users").child(mAuth.getUid()).child("photo").setValue(filename);
 					Toast.makeText(getContext(), "Profile picture has changed.", Toast.LENGTH_LONG).show();
 				}
 			}).addOnFailureListener(new OnFailureListener() {

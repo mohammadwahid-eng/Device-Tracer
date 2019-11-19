@@ -97,7 +97,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 				User data = dataSnapshot.getValue(User.class);
 				_nav_name.setText(data.getName());
 				_nav_email.setText(mAuth.getCurrentUser().getEmail());
-				showProfilePicture();
+				if(data.getPhoto().length()>0) {
+					showProfilePicture(data.getPhoto());
+				}
 			}
 
 			@Override
@@ -107,16 +109,11 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 		});
 	}
 
-	private void showProfilePicture() {
-		fStorage.getReference("Photos").child(mAuth.getUid()+".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+	private void showProfilePicture(String photo) {
+		fStorage.getReference("Photos").child(photo).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 			@Override
 			public void onSuccess(Uri uri) {
-				Picasso.get().load(uri).placeholder(R.drawable.ic_avatar).error(R.drawable.ic_avatar).into(_nav_avatar);
-			}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception exception) {
-				//Toast.makeText(getApplicationContext(), "Failed to load profile picture. Error: "+exception.getMessage(), Toast.LENGTH_LONG).show();
+				Picasso.get().load(uri).into(_nav_avatar);
 			}
 		});
 	}

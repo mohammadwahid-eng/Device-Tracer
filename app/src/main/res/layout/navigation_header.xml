@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation_header"
     android:orientation="vertical"
     android:background="@drawable/nav_bg"
@@ -12,8 +11,8 @@
 
     <com.github.abdularis.civ.CircleImageView
         android:id="@+id/navigation_avatar"
-        android:scaleType="fitXY"
         android:src="@drawable/ic_avatar"
+        android:scaleType="fitXY"
         android:layout_width="50dp"
         android:layout_height="50dp"/>
 
