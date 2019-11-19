@@ -23,4 +23,10 @@
     <style name="AppSwitch" parent="Theme.AppCompat.Light">
         <item name="android:colorControlActivated">@color/colorPrimary</item>
     </style>
+
+    <style name="AppSearchViewNav" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColorPrimary">@color/colorWhite</item>
+        <item name="android:textColorHint">@color/colorPrimaryLightActive</item>
+        <item name="android:tint">@color/colorDark</item>
+    </style>
 </resources>

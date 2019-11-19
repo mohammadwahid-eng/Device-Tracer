@@ -8,25 +8,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 
 import com.github.abdularis.civ.CircleImageView;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,7 +30,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -50,7 +45,7 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class TraceActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks {
+public class TraceActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, View.OnClickListener, SearchView.OnQueryTextListener {
 
 	public boolean hasPermission;
 
@@ -61,13 +56,16 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	private FirebaseAuth mAuth;
 	private FirebaseDatabase fDatabase;
 	private FirebaseStorage fStorage;
-	private FusedLocationProviderClient fusedLocationClient;
 
+	private ImageView backBtn;
+	private SearchView search;
+	private CircleImageView selfTrace;
 	private ProgressDialog progressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getSupportActionBar().hide();
 		setContentView(R.layout.activity_trace);
 		permissionChecking();
 
@@ -75,7 +73,16 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		fDatabase = FirebaseDatabase.getInstance();
 		fStorage    = FirebaseStorage.getInstance();
 
-		fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+		search = findViewById(R.id.trace_search);
+		search.requestFocus();
+		search.setOnQueryTextListener(this);
+
+		selfTrace = findViewById(R.id.trace_self);
+		selfTrace.setOnClickListener(this);
+
+		backBtn = findViewById(R.id.trace_backBtn);
+		backBtn.setOnClickListener(this);
 
 		progressDialog = new ProgressDialog(this, R.style.AppProgressDialog);
 		progressDialog.setCanceledOnTouchOutside(false);
@@ -87,13 +94,6 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.search_menu, menu);
-
-		SearchView search = (SearchView) menu.findItem(R.id.nav_search).getActionView();
-		search.setMaxWidth(Integer.MAX_VALUE);
-		search.setQueryHint(getString(R.string.search_hints));
-		search.setInputType(InputType.TYPE_CLASS_NUMBER);
-		search.onActionViewExpanded();
-
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -236,5 +236,34 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if(v == backBtn) {
+			super.onBackPressed();
+		} else if(v == selfTrace) {
+
+		}
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+
+		if(query.length()==15) {
+			//IMEIs
+				//IMEI NOT FOUND
+
+				//MOBILE
+		} else {
+			//MOBILE
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean onQueryTextChange(String newText) {
+		return false;
 	}
 }

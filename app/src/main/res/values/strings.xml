@@ -41,7 +41,7 @@
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
     <string name="mobile_hints">019xxxxxxx</string>
-    <string name="search_hints">Mobile or IMEI Number</string>
+    <string name="search_hints">Enter a mobile or imei number</string>
     <string name="permission_note">Permissions are required for using the app. Please give permissions.</string>
 
     <string-array name="settings_name">
