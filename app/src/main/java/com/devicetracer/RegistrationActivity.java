@@ -131,20 +131,29 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 					@Override
 					public void onComplete(@NonNull Task<AuthResult> task) {
 						if (task.isSuccessful()) {
+							mAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+								@Override
+								public void onComplete(@NonNull Task<Void> task) {
+									progressDialog.hide();
+									if(task.isSuccessful()) {
+										//Update Device Location
+										DeviceLocation deviceLocation = new DeviceLocation(fLocation.getAccuracy(), fLocation.getLatitude(), fLocation.getLongitude(), fLocation.getTime());
+										DatabaseReference device = fDatabase.getReference("Devices").child(imei);
+										device.setValue(deviceLocation);
 
-							DatabaseReference user = fDatabase.getReference("Users").child(mAuth.getUid());
-							User userData = new User(name, mobile, imei, photo);
-							user.setValue(userData);
+										//Database entry
+										DatabaseReference user = fDatabase.getReference("Users").child(mAuth.getUid());
+										User userData = new User(name, mobile, imei, photo);
+										user.setValue(userData);
 
-							DeviceLocation deviceLocation = new DeviceLocation(fLocation.getAccuracy(), fLocation.getLatitude(), fLocation.getLongitude(), fLocation.getTime());
-							DatabaseReference device = fDatabase.getReference("Devices").child(imei);
-							device.setValue(deviceLocation);
-
-							progressDialog.hide();
-							Toast.makeText(getApplicationContext(), "Registration completed", Toast.LENGTH_SHORT).show();
-							finish();
-							Intent _loginScreen = new Intent(RegistrationActivity.this, LoginActivity.class);
-							startActivity(_loginScreen);
+										finish();
+										Intent _emailScreen = new Intent(RegistrationActivity.this, ResetActivity.class);
+										startActivity(_emailScreen);
+									} else {
+										Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+									}
+								}
+							});
 
 						} else {
 							progressDialog.hide();

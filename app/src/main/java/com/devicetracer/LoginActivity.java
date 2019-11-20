@@ -3,7 +3,9 @@ package com.devicetracer;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -18,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -87,9 +90,43 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 				public void onComplete(@NonNull Task<AuthResult> task) {
 					progressDialog.hide();
 					if (task.isSuccessful()) {
-						finish();
-						Intent _dashboardScreen = new Intent(getApplicationContext(), DashboardActivity.class);
-						startActivity(_dashboardScreen);
+						if(mAuth.getCurrentUser().isEmailVerified()) {
+							finish();
+							Intent _dashboardScreen = new Intent(getApplicationContext(), DashboardActivity.class);
+							startActivity(_dashboardScreen);
+						} else {
+
+							AlertDialog.Builder popup = new AlertDialog.Builder(LoginActivity.this);
+							popup.setCancelable(false);
+							popup.setTitle("Account verification");
+							popup.setMessage("We sent a verification link to your email address after the registration process. Please verify your account from the link.");
+							popup.setIcon(R.drawable.ic_error);
+							popup.setPositiveButton("Ok", null);
+							popup.setNeutralButton("Resend Link", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									FirebaseUser user = mAuth.getCurrentUser();
+									if(user!=null) {
+										user.reload();
+										user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+											@Override
+											public void onComplete(@NonNull Task<Void> task) {
+												if(task.isSuccessful()) {
+													finish();
+													Intent _emailScreen = new Intent(LoginActivity.this, ResetActivity.class);
+													startActivity(_emailScreen);
+												} else {
+													Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+												}
+											}
+										});
+									}
+								}
+							});
+
+							AlertDialog alert = popup.create();
+							alert.show();
+						}
 					} else {
 						Toast.makeText(getApplicationContext(), "Email/Password didn't matched.", Toast.LENGTH_SHORT).show();
 					}

@@ -1,15 +1,22 @@
 package com.devicetracer;
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +39,17 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+public class ProfileFragment extends Fragment implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
+
+	public boolean hasPermission;
 
 	private FirebaseAuth mAuth;
 	private FirebaseDatabase fDatabase;
@@ -45,22 +59,24 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 	private TextView _pname, _name, _mobile, _imei, _changeAvatar;
 	private CircleImageView _avatar;
-	private Button _updateBtn;
+	private Button _updateBtn, _bindBtn;
 	private ProgressDialog progressDialog;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.fragment_profile, container, false);
+	}
+
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
 		mAuth       = FirebaseAuth.getInstance();
 		fDatabase   = FirebaseDatabase.getInstance();
 		fStorage    = FirebaseStorage.getInstance();
 		progressDialog = new ProgressDialog(getActivity(), R.style.AppProgressDialog);
 		progressDialog.setMessage("Processing");
 		progressDialog.setCanceledOnTouchOutside(false);
-		return inflater.inflate(R.layout.fragment_profile, container, false);
-	}
 
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
 		_pname          = view.findViewById(R.id.profile_name);
 		_name           = view.findViewById(R.id.profile_edit_name);
 		_mobile         = view.findViewById(R.id.profile_edit_mobile);
@@ -68,6 +84,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		_avatar         = view.findViewById(R.id.profile_avatar);
 		_changeAvatar   = view.findViewById(R.id.profile_avatar_change);
 		_updateBtn      = view.findViewById(R.id.profile_updateBtn);
+		_bindBtn      = view.findViewById(R.id.profile_bindingBtn);
 
 		showProfileData();
 
@@ -75,6 +92,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		_avatar.setOnClickListener(this);
 		_changeAvatar.setOnClickListener(this);
 		_updateBtn.setOnClickListener(this);
+		_bindBtn.setOnClickListener(this);
 	}
 
 	private void showProfileData() {
@@ -119,6 +137,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		} else if(v == _mobile) {
 			Intent _mobileScreen = new Intent(getContext(), PhoneActivity.class);
 			startActivity(_mobileScreen);
+		} else if(v == _bindBtn) {
+			AlertDialog.Builder popup = new AlertDialog.Builder(getActivity());
+			popup.setMessage("Do you really want to bind the device with your account?");
+			popup.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					fDatabase.getReference("Users").child(mAuth.getUid()).child("imei").setValue(getDeviceImei());
+					Toast.makeText(getContext(), "Device binding complete.", Toast.LENGTH_SHORT).show();
+				}
+			});
+			popup.setNegativeButton("No", null);
+			AlertDialog alert = popup.create();
+			alert.show();
+
 		} else if(v == _updateBtn) {
 			final String name = _name.getText().toString().trim();
 
@@ -131,6 +163,22 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			fDatabase.getReference("Users").child(mAuth.getUid()).child("name").setValue(name);
 			Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private String getDeviceImei() {
+		TelephonyManager tm = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+		String imei;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (getActivity().checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+				//EasyPermission module will handle the permission
+			}
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			imei = tm.getImei();
+		} else {
+			imei = tm.getDeviceId();
+		}
+		return imei;
 	}
 
 	private void updatePicture(final Uri imageURI) {
@@ -170,5 +218,42 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
 			updatePicture(data.getData());
 		}
+	}
+
+	@AfterPermissionGranted(123)
+	public void permissionChecking() {
+		String[] perms = {
+				Manifest.permission.INTERNET,
+				Manifest.permission.ACCESS_NETWORK_STATE,
+				Manifest.permission.ACCESS_COARSE_LOCATION,
+				Manifest.permission.ACCESS_FINE_LOCATION,
+				Manifest.permission.READ_PHONE_STATE,
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
+		};
+		if (EasyPermissions.hasPermissions(getActivity().getApplicationContext(), perms)) {
+			hasPermission = true;
+		} else {
+			hasPermission = false;
+			EasyPermissions.requestPermissions(this, getString(R.string.permission_note), 123, perms);
+		}
+	}
+
+	@Override
+	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+
+	}
+
+	@Override
+	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+			new AppSettingsDialog.Builder(this).build().show();
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, getActivity());
 	}
 }

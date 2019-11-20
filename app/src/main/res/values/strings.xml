@@ -17,8 +17,9 @@
     <string name="name_hints">Your Name</string>
     <string name="reset">Reset Password</string>
     <string name="reset_note">A password reset link will be sent to your email.</string>
-    <string name="reset_email_note">We have sent you a reset password link on your registered email address.</string>
+    <string name="reset_email_note">We have sent you a link to your registered email address.</string>
     <string name="go_to_email">Go To Email</string>
+    <string name="back_to_login">Back to Login</string>
     <string name="choose_email_client">Choose email client</string>
     <string name="label_name">Full Name</string>
     <string name="label_email">Email</string>
@@ -50,6 +51,7 @@
     <string name="label_verification">Verification</string>
     <string name="label_otp">OTP</string>
     <string name="label_otp_request">Resend OTP code</string>
+    <string name="label_binding">Bind your account with this device</string>
 
     <string-array name="settings_name">
         <item>Option 1</item>

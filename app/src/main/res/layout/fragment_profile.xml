@@ -104,15 +104,31 @@
 
         </LinearLayout>
 
-        <Button
+        <LinearLayout
             android:layout_alignParentBottom="true"
-            android:id="@+id/profile_updateBtn"
-            android:textColor="@color/colorWhite"
-            style="@style/AppButton"
-            android:background="@drawable/btn_primary"
-            android:text="@string/label_update"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/profile_updateBtn"
+                android:textColor="@color/colorWhite"
+                style="@style/AppButton"
+                android:background="@drawable/btn_primary"
+                android:text="@string/label_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:layout_marginTop="15dp"
+                android:id="@+id/profile_bindingBtn"
+                android:textColor="@color/colorPrimaryDark"
+                style="@style/AppButton"
+                android:background="@drawable/btn_secondary"
+                android:text="@string/label_binding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
     </RelativeLayout>
 
 </LinearLayout>
