@@ -71,6 +71,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 		showProfileData();
 
+		_mobile.setOnClickListener(this);
 		_avatar.setOnClickListener(this);
 		_changeAvatar.setOnClickListener(this);
 		_updateBtn.setOnClickListener(this);
@@ -115,9 +116,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			intent.setAction(Intent.ACTION_GET_CONTENT);
 			startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
+		} else if(v == _mobile) {
+			Intent _mobileScreen = new Intent(getContext(), PhoneActivity.class);
+			startActivity(_mobileScreen);
 		} else if(v == _updateBtn) {
 			final String name = _name.getText().toString().trim();
-			final String mobile = _mobile.getText().toString().trim();
 
 			if(name.equals("")) {
 				_name.setError("Name is required.");
@@ -125,14 +128,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 				return;
 			}
 
-			if(mobile.equals("")) {
-				_mobile.setError("Mobile number is required.");
-				_mobile.requestFocus();
-				return;
-			}
-
 			fDatabase.getReference("Users").child(mAuth.getUid()).child("name").setValue(name);
-			fDatabase.getReference("Users").child(mAuth.getUid()).child("mobile").setValue(mobile);
 			Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
 		}
 	}

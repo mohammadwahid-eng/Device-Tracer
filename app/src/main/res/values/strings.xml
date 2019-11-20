@@ -11,6 +11,7 @@
     <string name="continue_str">Continue</string>
     <string name="imei_hints">x x x x x x x x x x x x x x x</string>
     <string name="password_hints">* * * * * *</string>
+    <string name="otp_hints">* * * * * *</string>
     <string name="password_note">Password must be at least 6 characters.</string>
     <string name="email_hints">youremail@email.com</string>
     <string name="name_hints">Your Name</string>
@@ -40,9 +41,15 @@
     <string name="label_search">Search</string>
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
-    <string name="mobile_hints">019xxxxxxx</string>
+    <string name="mobile_hints">Enter your mobile number.</string>
+    <string name="label_set_mobile">Set mobile number</string>
+    <string name="mobile_note">An OTP will be sent to the number for verification.</string>
+    <string name="otp_note">Please enter the OTP that sent to your number.</string>
     <string name="search_hints">Enter a mobile or imei number</string>
     <string name="permission_note">Permissions are required for using the app. Please give permissions.</string>
+    <string name="label_verification">Verification</string>
+    <string name="label_otp">OTP</string>
+    <string name="label_otp_request">Resend OTP code</string>
 
     <string-array name="settings_name">
         <item>Option 1</item>

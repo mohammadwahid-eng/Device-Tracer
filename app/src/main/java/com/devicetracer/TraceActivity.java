@@ -247,17 +247,25 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		}
 	}
 
+	private void findByimei(String imei) {
+
+	}
+
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 
-		if(query.length()==15) {
-			//IMEIs
-				//IMEI NOT FOUND
+		fDatabase.getReference("Devices").child(query).addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				User userData = dataSnapshot.getValue(User.class);
+				Toast.makeText(getApplicationContext(), userData.getName(), Toast.LENGTH_SHORT).show();
+			}
 
-				//MOBILE
-		} else {
-			//MOBILE
-		}
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+				Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+		});
 
 		return false;
 	}

@@ -17,7 +17,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TraceActivity" android:parentActivityName=".DashboardActivity"></activity>
+        <activity android:name=".PhoneverificationActivity" android:parentActivityName=".PhoneActivity"></activity>
+        <activity android:name=".PhoneActivity">
+
+        </activity>
+        <activity
+            android:name=".TraceActivity"
+            android:parentActivityName=".DashboardActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -45,7 +51,7 @@
             android:parentActivityName=".SplashActivity" />
         <activity
             android:name=".DashboardActivity"
-            android:parentActivityName=".LoginActivity"></activity>
+            android:parentActivityName=".LoginActivity" />
     </application>
 
 </manifest>

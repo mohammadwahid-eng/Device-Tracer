@@ -96,6 +96,7 @@
                 android:layout_height="wrap_content"/>
             <EditText
                 android:id="@+id/profile_edit_mobile"
+                android:focusable="false"
                 android:inputType="phone"
                 style="@style/AppEditText"
                 android:layout_width="match_parent"

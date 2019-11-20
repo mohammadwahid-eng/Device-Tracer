@@ -41,7 +41,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 	public boolean hasPermission;
 
 	private ImageView _backBtn;
-	private EditText _field_name, _field_email, _field_mobile, _field_password;
+	private EditText _field_name, _field_email, _field_password;
 	private Button _regBtn;
 
 	private FirebaseAuth mAuth;
@@ -70,7 +70,6 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 
 		_field_name = findViewById(R.id.reg_name);
 		_field_email = findViewById(R.id.reg_email);
-		_field_mobile = findViewById(R.id.reg_mobile);
 		_field_password = findViewById(R.id.reg_password);
 		_regBtn = findViewById(R.id.reg_btn);
 		_regBtn.setOnClickListener(this);
@@ -92,7 +91,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 
 				final String name       = _field_name.getText().toString().trim();
 				final String email      = _field_email.getText().toString().trim();
-				final String mobile     = _field_mobile.getText().toString().trim();
+				final String mobile     = "";
 				final String password   = _field_password.getText().toString().trim();
 				final String imei       = getDeviceImei();
 				final String photo      = "";
@@ -112,12 +111,6 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 				if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
 					_field_email.setError("Please enter valid email address.");
 					_field_email.requestFocus();
-					return;
-				}
-
-				if(mobile.equals("")) {
-					_field_mobile.setError("Mobile number is required.");
-					_field_mobile.requestFocus();
 					return;
 				}
 

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".RegistrationActivity">
+    tools:context=".PhoneActivity">
 
     <LinearLayout
         android:orientation="vertical"
@@ -17,7 +17,7 @@
         android:layout_height="220dp">
 
         <ImageView
-            android:id="@+id/reg_backBtn"
+            android:id="@+id/phone_backBtn"
             android:src="@drawable/ic_chevron_left"
             android:scaleType="fitXY"
             android:layout_marginLeft="-10dp"
@@ -30,7 +30,7 @@
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/colorWhite"
-            android:text="@string/registration"
+            android:text="@string/label_set_mobile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -38,7 +38,7 @@
             android:layout_marginTop="10dp"
             android:textSize="20sp"
             android:textColor="@color/colorWhite"
-            android:text="@string/registration_note"
+            android:text="@string/mobile_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
@@ -55,54 +55,32 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:text="@string/label_name"
+                android:text="@string/label_mobile"
                 android:textStyle="bold"
                 android:textSize="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-            <EditText
-                android:id="@+id/reg_name"
-                style="@style/AppEditText"
-                android:hint="@string/name_hints"
-                android:inputType="textPersonName"
+            <LinearLayout
+                android:layout_gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:layout_marginTop="10dp"
-                android:textStyle="bold"
-                android:textSize="16dp"
-                android:text="@string/label_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <EditText
-                android:id="@+id/reg_email"
-                style="@style/AppEditText"
-                android:hint="@string/email_hints"
-                android:inputType="textEmailAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:layout_marginTop="10dp"
-                android:textStyle="bold"
-                android:textSize="16dp"
-                android:text="@string/label_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <EditText
-                android:id="@+id/reg_password"
-                style="@style/AppEditText"
-                android:hint="@string/password_hints"
-                android:inputType="textPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:textSize="14dp"
-                android:textStyle="italic"
-                android:text="@string/password_note"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content">
+                <com.hbb20.CountryCodePicker
+                    android:id="@+id/phone_countryCode"
+                    app:ccp_contentColor="@color/colorDark"
+                    android:layout_marginLeft="-8dp"
+                    app:ccp_showNameCode="false"
+                    app:ccp_autoDetectCountry="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <EditText
+                    android:layout_marginTop="-3dp"
+                    android:id="@+id/phone_number"
+                    style="@style/AppEditText"
+                    android:hint="@string/mobile_hints"
+                    android:inputType="number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -112,7 +90,7 @@
             android:layout_height="match_parent">
             <Button
                 android:layout_marginBottom="2dp"
-                android:id="@+id/reg_btn"
+                android:id="@+id/phone_btn"
                 android:textColor="@color/colorWhite"
                 style="@style/AppButton"
                 android:background="@drawable/btn_primary"
