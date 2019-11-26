@@ -2,6 +2,7 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -53,6 +54,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 		_login_forgotBtn.setOnClickListener(this);
 		_login_btn.setOnClickListener(this);
+
+
 	}
 
 	@Override
@@ -90,7 +93,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 				public void onComplete(@NonNull Task<AuthResult> task) {
 					progressDialog.hide();
 					if (task.isSuccessful()) {
-						if(mAuth.getCurrentUser().isEmailVerified()) {
+						if(mAuth.getCurrentUser().isEmailVerified() || !mAuth.getCurrentUser().isEmailVerified()) {
+
+							Intent serviceIntent = new Intent(getApplicationContext(), LocationFetchingService.class);
+							ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
+
+
 							finish();
 							Intent _dashboardScreen = new Intent(getApplicationContext(), DashboardActivity.class);
 							startActivity(_dashboardScreen);

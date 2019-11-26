@@ -13,12 +13,12 @@
 
     <com.github.abdularis.civ.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_marginTop="-60dp"
+        android:layout_marginTop="-63dp"
         android:id="@+id/mphoto"
         app:strokeColor="@color/colorPrimaryDark"
         app:strokeWidth="1px"
         android:scaleType="fitXY"
-        android:layout_width="40dp"
-        android:layout_height="40dp"/>
+        android:layout_width="47dp"
+        android:layout_height="47dp"/>
 
 </LinearLayout>

@@ -29,9 +29,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -50,8 +52,11 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	public boolean hasPermission;
 
 	private GoogleMap gmap;
+
+
 	private MarkerOptions marker;
 	private LatLng geoCord;
+	private String markerTitle;
 
 	private FirebaseAuth mAuth;
 	private FirebaseDatabase fDatabase;
@@ -99,15 +104,16 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
-		progressDialog.setMessage("Loading");
-		progressDialog.show();
 		gmap = googleMap;
+		MyLocation();
+	}
 
+	private void MyLocation() {
 		fDatabase.getReference("Devices").child(getDeviceImei()).addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				DeviceLocation deviceData = dataSnapshot.getValue(DeviceLocation.class);
-				setMarker(deviceData);
+				setMarkerPointer(deviceData);
 			}
 
 			@Override
@@ -118,49 +124,14 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		});
 	}
 
-	private void setMarker(DeviceLocation deviceData) {
+	private void setMarkerPointer(DeviceLocation deviceData) {
 		gmap.clear();
 		geoCord = new LatLng(deviceData.getLatitude(), deviceData.getLongitude());
 		marker = new MarkerOptions();
 		marker.position(geoCord);
-		setMarkerPhoto();
-	}
-
-	private void setMarkerPhoto() {
-		fDatabase.getReference("Users").child(mAuth.getUid()).addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				User userData = dataSnapshot.getValue(User.class);
-				marker.title(userData.getName());
-				marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
-
-				if(userData.getPhoto().length()>0) {
-					getMarkerPhoto(userData.getPhoto());
-				} else {
-					gmap.addMarker(marker);
-					gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
-					progressDialog.hide();
-				}
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-				progressDialog.hide();
-				Toast.makeText(getApplicationContext(), "Error: "+databaseError.getMessage(), Toast.LENGTH_LONG).show();
-			}
-		});
-	}
-
-	private void getMarkerPhoto(String photo) {
-		fStorage.getReference("Photos").child(photo).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-			@Override
-			public void onSuccess(Uri uri) {
-				marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(uri)));
-				gmap.addMarker(marker);
-				gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
-				progressDialog.hide();
-			}
-		});
+		marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
+		gmap.addMarker(marker);
+		gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
 	}
 
 	private Bitmap mapMarker(Uri uri) {
@@ -210,7 +181,8 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 				Manifest.permission.ACCESS_FINE_LOCATION,
 				Manifest.permission.READ_PHONE_STATE,
 				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
+				Manifest.permission.WRITE_EXTERNAL_STORAGE,
+				Manifest.permission.FOREGROUND_SERVICE
 		};
 		if (EasyPermissions.hasPermissions(this, perms)) {
 			hasPermission = true;
@@ -243,22 +215,22 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		if(v == backBtn) {
 			super.onBackPressed();
 		} else if(v == selfTrace) {
-
+			MyLocation();
+			search.setQuery("", false);
+			search.clearFocus();
 		}
 	}
 
 	private void findByimei(String imei) {
-
-	}
-
-	@Override
-	public boolean onQueryTextSubmit(String query) {
-
-		fDatabase.getReference("Devices").child(query).addValueEventListener(new ValueEventListener() {
+		fDatabase.getReference("Devices").child(imei).addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				User userData = dataSnapshot.getValue(User.class);
-				Toast.makeText(getApplicationContext(), userData.getName(), Toast.LENGTH_SHORT).show();
+				if(dataSnapshot.getValue()!=null) {
+					DeviceLocation deviceData = dataSnapshot.getValue(DeviceLocation.class);
+					setMarkerPointer(deviceData);
+				} else {
+					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_LONG).show();
+				}
 			}
 
 			@Override
@@ -266,7 +238,61 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 				Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
 
+	private void findByMobile(final String mobile) {
+
+		fDatabase.getReference("Users").orderByChild("mobile").equalTo(mobile).addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
+				if(dataSnapshot.getValue()!=null) {
+					for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+						final User userData = snapshot.getValue(User.class);
+
+						fDatabase.getReference("Devices").child(userData.getImei()).addValueEventListener(new ValueEventListener() {
+							@Override
+							public void onDataChange(@NonNull DataSnapshot data_Snapshot) {
+								if(data_Snapshot.getValue()!=null) {
+									DeviceLocation deviceData = data_Snapshot.getValue(DeviceLocation.class);
+									setMarkerPointer(deviceData);
+
+									sendNotification(mAuth.getCurrentUser().getDisplayName() + " seen your location.", mAuth.getUid(), dataSnapshot.getKey(), "Time");
+								} else {
+									Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_LONG).show();
+								}
+							}
+
+							@Override
+							public void onCancelled(@NonNull DatabaseError databaseError) {
+								Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+							}
+						});
+					}
+				} else {
+					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+
+			}
+		});
+	}
+
+	private void sendNotification(String message, String from, String to, String time) {
+		fDatabase.getReference("Notifications").child(to).child("message").setValue(message);
+		fDatabase.getReference("Notifications").child(to).child(from).setValue(from);
+		fDatabase.getReference("Notifications").child(to).child(time).setValue(time);
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		if(query.charAt(0) == '+') {
+			findByMobile(query);
+		} else {
+			findByimei(query);
+		}
 		return false;
 	}
 

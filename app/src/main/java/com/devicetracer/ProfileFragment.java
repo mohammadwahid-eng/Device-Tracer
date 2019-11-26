@@ -69,6 +69,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, E
 
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		permissionChecking();
 
 		mAuth       = FirebaseAuth.getInstance();
 		fDatabase   = FirebaseDatabase.getInstance();
@@ -138,6 +139,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, E
 			Intent _mobileScreen = new Intent(getContext(), PhoneActivity.class);
 			startActivity(_mobileScreen);
 		} else if(v == _bindBtn) {
+
 			AlertDialog.Builder popup = new AlertDialog.Builder(getActivity());
 			popup.setMessage("Do you really want to bind the device with your account?");
 			popup.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -229,7 +231,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, E
 				Manifest.permission.ACCESS_FINE_LOCATION,
 				Manifest.permission.READ_PHONE_STATE,
 				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
+				Manifest.permission.WRITE_EXTERNAL_STORAGE,
+				Manifest.permission.FOREGROUND_SERVICE
 		};
 		if (EasyPermissions.hasPermissions(getActivity().getApplicationContext(), perms)) {
 			hasPermission = true;

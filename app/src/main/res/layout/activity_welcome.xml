@@ -17,15 +17,15 @@
         android:layout_width="match_parent"
         android:layout_height="250dp">
         <ImageView
-            android:src="@drawable/ic_map_marker"
+            android:src="@drawable/ic_logo"
             android:scaleType="fitXY"
-            android:layout_width="70dp"
-            android:layout_height="70dp"/>
+            android:layout_width="60dp"
+            android:layout_height="73dp"/>
 
         <TextView
             android:textSize="28sp"
             android:textStyle="bold"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="5dp"
             android:textColor="@color/colorWhite"
             android:text="@string/welcome"
             android:layout_width="match_parent"

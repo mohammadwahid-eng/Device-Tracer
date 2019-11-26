@@ -51,8 +51,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 	private ActionBarDrawerToggle actionBarDrawerToggle;
 	private NavigationView navigationView;
 
-	private FusedLocationProviderClient fusedLocationClient;
-
 	private TextView _nav_name, _nav_email;
 	private CircleImageView _nav_avatar;
 	private long mBackPressed;
@@ -65,8 +63,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 		setContentView(R.layout.activity_dashboard);
 
 		permissionChecking();
-		fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-		syncDeviceLocation();
 
 		mAuth       = FirebaseAuth.getInstance();
 		fDatabase   = FirebaseDatabase.getInstance();
@@ -87,7 +83,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
 		showNavHeaderData();
 
-		//getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new DashboardFragment()).commit();
+		getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new DashboardFragment()).commit();
 	}
 
 	private void showNavHeaderData() {
@@ -163,6 +159,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 			Toast.makeText(getApplicationContext(), "Log out Successfully", Toast.LENGTH_SHORT).show();
 			mAuth.signOut();
 			finish();
+
+			Intent serviceIntent = new Intent(getApplicationContext(), LocationFetchingService.class);
+			stopService(serviceIntent);
+
 			Intent _welcomeScreen = new Intent(getApplicationContext(), WelcomeActivity.class);
 			startActivity(_welcomeScreen);
 		}
@@ -203,40 +203,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 		mBackPressed = System.currentTimeMillis();
 	}
 
-	private void getDeviceLocation() {
-		fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-			@Override
-			public void onSuccess(Location location) {
-				if (location != null) {
-					DeviceLocation deviceLocation = new DeviceLocation(location.getAccuracy(), location.getLatitude(), location.getLongitude(), location.getTime());
-					DatabaseReference device = fDatabase.getReference("Devices").child(getDeviceImei());
-					device.setValue(deviceLocation);
-				}
-			}
-		});
-	}
-
-	private String getDeviceImei() {
-		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		String imei;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-				//EasyPermission module will handle the permission
-			}
-		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			imei = tm.getImei();
-		} else {
-			imei = tm.getDeviceId();
-		}
-		return imei;
-	}
-
-	private void syncDeviceLocation() {
-		getDeviceImei();
-		getDeviceLocation();
-	}
-
 	@AfterPermissionGranted(123)
 	public void permissionChecking() {
 		String[] perms = {
@@ -246,7 +212,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 				Manifest.permission.ACCESS_FINE_LOCATION,
 				Manifest.permission.READ_PHONE_STATE,
 				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE
+				Manifest.permission.WRITE_EXTERNAL_STORAGE,
+				Manifest.permission.FOREGROUND_SERVICE
 		};
 		if (EasyPermissions.hasPermissions(this, perms)) {
 			hasPermission = true;
