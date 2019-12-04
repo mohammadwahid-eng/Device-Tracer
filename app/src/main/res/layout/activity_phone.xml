@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/colorPrimary"
     tools:context=".PhoneActivity">
 
     <LinearLayout
@@ -12,7 +13,6 @@
         android:paddingTop="30dp"
         android:paddingRight="30dp"
         android:paddingLeft="30dp"
-        android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="220dp">
 
@@ -43,61 +43,66 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:background="@color/colorLightDark"
-        android:orientation="vertical"
-        android:padding="30dp"
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/phone_cardHead"
+        android:backgroundTint="@color/colorLight"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
             android:orientation="vertical"
+            android:padding="30dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:text="@string/label_mobile"
-                android:textStyle="bold"
-                android:textSize="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+            android:layout_height="match_parent">
             <LinearLayout
-                android:layout_gravity="center_vertical"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <com.hbb20.CountryCodePicker
-                    android:id="@+id/phone_countryCode"
-                    app:ccp_contentColor="@color/colorDark"
-                    android:layout_marginLeft="-8dp"
-                    app:ccp_showNameCode="false"
-                    app:ccp_autoDetectCountry="true"
-                    android:layout_width="wrap_content"
+
+                <TextView
+                    android:text="@string/label_mobile"
+                    android:textStyle="bold"
+                    android:textSize="16dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
-                <EditText
-                    android:layout_marginTop="-3dp"
-                    android:id="@+id/phone_number"
-                    style="@style/AppEditText"
-                    android:hint="@string/mobile_hints"
-                    android:inputType="number"
+                <LinearLayout
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <com.hbb20.CountryCodePicker
+                        android:id="@+id/phone_countryCode"
+                        app:ccp_contentColor="@color/colorDark"
+                        android:layout_marginLeft="-8dp"
+                        app:ccp_showNameCode="false"
+                        app:ccp_autoDetectCountry="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                    <EditText
+                        android:layout_marginTop="-3dp"
+                        android:id="@+id/phone_number"
+                        style="@style/AppEditText"
+                        android:hint="@string/mobile_hints"
+                        android:inputType="number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:gravity="bottom"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <Button
+                    android:layout_marginBottom="2dp"
+                    android:id="@+id/phone_btn"
+                    android:textColor="@color/colorWhite"
+                    style="@style/AppButton"
+                    android:background="@drawable/btn_primary"
+                    android:text="@string/continue_str"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:gravity="bottom"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                android:layout_marginBottom="2dp"
-                android:id="@+id/phone_btn"
-                android:textColor="@color/colorWhite"
-                style="@style/AppButton"
-                android:background="@drawable/btn_primary"
-                android:text="@string/continue_str"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </LinearLayout>
-
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

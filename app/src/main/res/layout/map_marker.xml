@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:gravity="center"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
         android:id="@+id/gmarker"
         android:src="@drawable/ic_marker"
-        android:layout_width="64dp"
-        android:layout_height="64dp"/>
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
 
-    <com.github.abdularis.civ.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_marginTop="-63dp"
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/mphoto"
-        app:strokeColor="@color/colorPrimaryDark"
-        app:strokeWidth="1px"
-        android:scaleType="fitXY"
-        android:layout_width="47dp"
-        android:layout_height="47dp"/>
+        android:layout_marginTop="1dp"
+        android:layout_marginLeft="6.5dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"/>
 
-</LinearLayout>
+</RelativeLayout>

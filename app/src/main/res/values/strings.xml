@@ -46,24 +46,12 @@
     <string name="label_set_mobile">Set mobile number</string>
     <string name="mobile_note">An OTP will be sent to the number for verification.</string>
     <string name="otp_note">Please enter the OTP that sent to your number.</string>
-    <string name="search_hints">Mobile (with CC) or IMEI</string>
+    <string name="search_hints">Search by imei or phone number</string>
     <string name="permission_note">Permissions are required for using the app. Please give permissions.</string>
     <string name="label_verification">Verification</string>
     <string name="label_otp">OTP</string>
     <string name="label_otp_request">Resend OTP code</string>
-    <string name="label_binding">Bind your account with this device</string>
+    <string name="label_binding">Bind me with this phone</string>
 
-    <string-array name="settings_name">
-        <item>Background location tracking</item>
-        <item>Hide notification from toolbar</item>
-    </string-array>
-
-    <string-array name="settings_value">
-        <item>true</item>
-        <item>false</item>
-    </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

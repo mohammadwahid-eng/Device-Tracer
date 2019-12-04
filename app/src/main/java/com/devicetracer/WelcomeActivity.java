@@ -1,6 +1,6 @@
 package com.devicetracer;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,26 +9,30 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import java.util.List;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.EasyPermissions;
-
-public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
-
-	public boolean hasPermission;
+public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener{
+	public static Activity activity;
 
 	private Button _regBtn, _loginBtn;
-	public static Activity activity;
+	private CardView cardHead;
+
+	private PermissionManager mPermission;
+	private String[] mPerms;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().hide();
 		setContentView(R.layout.activity_welcome);
-		activity = this;
-		permissionChecking();
+		this.activity = this;
+
+		mPerms = new String[] {
+				Manifest.permission.READ_PHONE_STATE,
+				Manifest.permission.ACCESS_FINE_LOCATION,
+				Manifest.permission.READ_EXTERNAL_STORAGE
+		};
+		mPermission = new PermissionManager(this);
+		mPermission.requestPermission(mPerms);
 
 		_regBtn     = findViewById(R.id.welcome_regBtn);
 		_loginBtn   = findViewById(R.id.welcome_loginBtn);
@@ -36,58 +40,29 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
 		_regBtn.setOnClickListener(this);
 		_loginBtn.setOnClickListener(this);
 
+		cardHead = findViewById(R.id.welcome_cardHead);
+		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
+
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
 	}
 
 	@Override
 	public void onClick(View v) {
-		if(!hasPermission) {
-			permissionChecking();
-		} else {
-			if(v == _regBtn) {
-				Intent _registrationScreen = new Intent(getApplicationContext(), RegistrationActivity.class);
-				startActivity(_registrationScreen);
-			} else if(v == _loginBtn) {
-				Intent _loginScreen = new Intent(getApplicationContext(), LoginActivity.class);
-				startActivity(_loginScreen);
-			}
+		if(!mPermission.hasPermission()) {
+			mPermission.requestPermission(mPerms);
+			return;
 		}
-	}
 
-	@AfterPermissionGranted(123)
-	public void permissionChecking() {
-		String[] perms = {
-				Manifest.permission.INTERNET,
-				Manifest.permission.ACCESS_NETWORK_STATE,
-				Manifest.permission.ACCESS_COARSE_LOCATION,
-				Manifest.permission.ACCESS_FINE_LOCATION,
-				Manifest.permission.READ_PHONE_STATE,
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE,
-				Manifest.permission.FOREGROUND_SERVICE
-		};
-		if (EasyPermissions.hasPermissions(this, perms)) {
-			hasPermission = true;
-		} else {
-			hasPermission = false;
-			EasyPermissions.requestPermissions(this, getString(R.string.permission_note), 123, perms);
+		if(v == _regBtn) {
+			Intent _registrationScreen = new Intent(getApplicationContext(), RegistrationActivity.class);
+			startActivity(_registrationScreen);
+		} else if(v == _loginBtn) {
+			Intent _loginScreen = new Intent(getApplicationContext(), LoginActivity.class);
+			startActivity(_loginScreen);
 		}
-	}
-
-	@Override
-	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-
-	}
-
-	@Override
-	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-			new AppSettingsDialog.Builder(this).build().show();
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
 	}
 }

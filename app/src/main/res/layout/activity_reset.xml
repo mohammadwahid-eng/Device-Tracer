@@ -8,6 +8,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="30dp"
+    android:background="@color/colorLight"
     tools:context=".ResetActivity">
 
     <ImageView
@@ -28,9 +29,9 @@
     <Button
         android:layout_marginTop="40dp"
         android:id="@+id/reset_email_btn"
-        android:textColor="@color/colorPrimaryDark"
+        android:textColor="@color/colorWhite"
         style="@style/AppButton"
-        android:background="@drawable/btn_secondary"
+        android:background="@drawable/btn_primary"
         android:text="@string/go_to_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -39,9 +40,9 @@
         android:layout_marginTop="15dp"
         android:id="@+id/reset_login_btn"
         android:layout_marginBottom="2dp"
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorPrimaryDark"
         style="@style/AppButton"
-        android:background="@drawable/btn_primary"
+        android:background="@drawable/btn_secondary"
         android:text="@string/back_to_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

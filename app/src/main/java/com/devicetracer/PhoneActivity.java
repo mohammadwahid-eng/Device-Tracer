@@ -1,6 +1,7 @@
 package com.devicetracer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 	private CountryCodePicker cCode;
 	private EditText phoneNumber;
 	private Button phoneBtn;
+	private CardView cardHead;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,9 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 		backBtn = findViewById(R.id.phone_backBtn);
 		backBtn.setOnClickListener(this);
 		phoneBtn.setOnClickListener(this);
+
+		cardHead = findViewById(R.id.phone_cardHead);
+		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	@Override

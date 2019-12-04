@@ -2,6 +2,7 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -26,6 +27,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.concurrent.TimeUnit;
 
 public class PhoneverificationActivity extends AppCompatActivity implements View.OnClickListener {
+
+	private CardView cardHead;
 	private ImageView _backBtn;
 	private Button verifyBtn;
 	private EditText otp;
@@ -65,6 +68,9 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 		String phoneNumber = getIntent().getStringExtra("phone_number");
 		storenumber = phoneNumber;
 		sendVerificationCode(phoneNumber);
+
+		cardHead = findViewById(R.id.verification_cardHead);
+		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	private void sendVerificationCode(String number) {
@@ -130,11 +136,11 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 			@Override
 			public void onComplete(@NonNull Task<AuthResult> task) {
 				progressDialog.hide();
+				finish();
 				if(task.isSuccessful()) {
-					fDatabase.getReference("Users").child(mAuth.getUid()).child("mobile").setValue(storenumber);
-					finish();
+					fDatabase.getReference("Users").child(mAuth.getUid()).child("phone").setValue(storenumber);
 					Toast.makeText(getApplicationContext(), "Number added successfully", Toast.LENGTH_SHORT).show();
-				} else {
+				}else {
 					Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
 				}
 			}

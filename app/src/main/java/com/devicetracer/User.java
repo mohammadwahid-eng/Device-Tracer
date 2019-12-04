@@ -1,19 +1,31 @@
 package com.devicetracer;
 
+import android.net.Uri;
+
 public class User {
+	private String uid;
 	private String name;
-	private String mobile;
+	private String phone;
 	private String imei;
 	private String photo;
 
 	public User() {
 	}
 
-	public User(String name, String mobile, String imei, String photo) {
+	public User(String uid, String name, String phone, String imei, String photo) {
+		this.uid = uid;
 		this.name = name;
-		this.mobile = mobile;
+		this.phone = phone;
 		this.imei = imei;
 		this.photo = photo;
+	}
+
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
 	}
 
 	public String getName() {
@@ -24,12 +36,12 @@ public class User {
 		this.name = name;
 	}
 
-	public String getMobile() {
-		return mobile;
+	public String getPhone() {
+		return phone;
 	}
 
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 
 	public String getImei() {

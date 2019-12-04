@@ -1,37 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation_header"
     android:orientation="vertical"
-    android:background="@drawable/nav_bg"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp"
     android:gravity="bottom"
+    android:padding="20dp"
+    android:background="@color/colorPrimaryDark"
     android:layout_width="match_parent"
-    android:layout_height="150dp">
+    android:layout_height="160dp">
 
-    <com.github.abdularis.civ.CircleImageView
-        android:id="@+id/navigation_avatar"
-        android:src="@drawable/ic_avatar"
-        android:scaleType="fitXY"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/nav_avatar"
+        android:layout_width="60dp"
+        android:layout_height="60dp"/>
 
     <TextView
-        android:id="@+id/navigation_name"
-        android:layout_marginTop="10dp"
-        android:textSize="16sp"
+        android:id="@+id/nav_name"
+        android:layout_marginTop="5dp"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/colorWhite"
-        android:text="@string/label_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/navigation_email"
-        android:layout_marginBottom="15dp"
-        android:textSize="15sp"
+        android:id="@+id/nav_identity"
+        android:layout_marginTop="-2dp"
         android:textColor="@color/colorWhite"
-        android:text="@string/label_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

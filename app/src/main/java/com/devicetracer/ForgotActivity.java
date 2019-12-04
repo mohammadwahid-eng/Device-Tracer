@@ -2,6 +2,7 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class ForgotActivity extends AppCompatActivity implements View.OnClickListener {
+	private CardView cardHead;
 	private ImageView _backBtn;
 	private EditText _forgot_email;
 	private Button _forgot_btn;
@@ -44,6 +46,8 @@ public class ForgotActivity extends AppCompatActivity implements View.OnClickLis
 		progressDialog.setMessage("Processing");
 		progressDialog.setCanceledOnTouchOutside(false);
 
+		cardHead = findViewById(R.id.forgot_cardHead);
+		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	@Override

@@ -2,13 +2,18 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -25,18 +30,61 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
+	private CardView cardHead;
 	private ImageView _backBtn;
 	private EditText _login_email, _login_password;
 	private Button _login_btn;
 	private TextView _login_forgotBtn;
 	private FirebaseAuth mAuth;
 	private ProgressDialog progressDialog;
+	private PermissionManager mPermission;
+	private String[] mPerms;
+
+	private LocationTrackingService mService = null;
+	private boolean mBound = false;
+
+	private ServiceConnection mServiceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			LocationTrackingService.LocalBinder binder = (LocationTrackingService.LocalBinder) service;
+			mService = binder.getService();
+			mBound = true;
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mService = null;
+			mBound = false;
+		}
+	};
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		bindService(new Intent(this, LocationTrackingService.class), mServiceConnection, BIND_AUTO_CREATE);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if(mBound) {
+			unbindService(mServiceConnection);
+			mBound = false;
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().hide();
 		setContentView(R.layout.activity_login);
+		mPerms = new String[] {
+				Manifest.permission.READ_PHONE_STATE,
+				Manifest.permission.ACCESS_FINE_LOCATION,
+				Manifest.permission.READ_EXTERNAL_STORAGE
+		};
+		mPermission = new PermissionManager(this);
+		mPermission.requestPermission(mPerms);
 
 		mAuth = FirebaseAuth.getInstance();
 
@@ -55,6 +103,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 		_login_forgotBtn.setOnClickListener(this);
 		_login_btn.setOnClickListener(this);
 
+		cardHead = findViewById(R.id.login_cardHead);
+		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 
 	}
 
@@ -66,6 +116,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 			Intent _forgotScreen = new Intent(getApplicationContext(), ForgotActivity.class);
 			startActivity(_forgotScreen);
 		} else if(v == _login_btn) {
+
+			if(!mPermission.hasPermission()) {
+				mPermission.requestPermission(mPerms);
+				return;
+			}
+
 			String email = _login_email.getText().toString().trim();
 			String password = _login_password.getText().toString().trim();
 
@@ -94,12 +150,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 					progressDialog.hide();
 					if (task.isSuccessful()) {
 						if(mAuth.getCurrentUser().isEmailVerified() || !mAuth.getCurrentUser().isEmailVerified()) {
-
-							Intent serviceIntent = new Intent(getApplicationContext(), LocationFetchingService.class);
-							ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
-
-
 							finish();
+
+							if(mService!=null) {
+								mService.requestLocationUpdate();
+							}
+
 							Intent _dashboardScreen = new Intent(getApplicationContext(), DashboardActivity.class);
 							startActivity(_dashboardScreen);
 						} else {

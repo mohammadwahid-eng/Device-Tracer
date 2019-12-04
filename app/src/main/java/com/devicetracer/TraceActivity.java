@@ -1,17 +1,14 @@
 package com.devicetracer;
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -22,62 +19,48 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
-import com.github.abdularis.civ.CircleImageView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.EasyPermissions;
+import de.hdodenhof.circleimageview.CircleImageView;
 
-public class TraceActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, View.OnClickListener, SearchView.OnQueryTextListener {
 
-	public boolean hasPermission;
+public class TraceActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, SearchView.OnQueryTextListener {
 
 	private GoogleMap gmap;
 
-
-	private MarkerOptions marker;
-	private LatLng geoCord;
-	private String markerTitle;
-
 	private FirebaseAuth mAuth;
-	private FirebaseDatabase fDatabase;
-	private FirebaseStorage fStorage;
+	private FirebaseDatabase mDatabase;
 
 	private ImageView backBtn;
 	private SearchView search;
-	private CircleImageView selfTrace;
+	private ImageView selfTrace;
 	private ProgressDialog progressDialog;
+
+	private Location mLocation = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().hide();
 		setContentView(R.layout.activity_trace);
-		permissionChecking();
 
 		mAuth = FirebaseAuth.getInstance();
-		fDatabase = FirebaseDatabase.getInstance();
-		fStorage    = FirebaseStorage.getInstance();
-
+		mDatabase = FirebaseDatabase.getInstance();
 
 		search = findViewById(R.id.trace_search);
 		search.requestFocus();
@@ -105,33 +88,30 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		gmap = googleMap;
-		MyLocation();
+		showMyLocation();
 	}
 
-	private void MyLocation() {
-		fDatabase.getReference("Devices").child(getDeviceImei()).addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				DeviceLocation deviceData = dataSnapshot.getValue(DeviceLocation.class);
-				setMarkerPointer(deviceData);
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-				progressDialog.hide();
-				Toast.makeText(getApplicationContext(), "Error: "+databaseError.getMessage(), Toast.LENGTH_LONG).show();
-			}
-		});
+	private void showMyLocation() {
+		String phone = mAuth.getCurrentUser().getPhoneNumber();
+		if(phone!=null && phone.length() > 0) {
+			findByPhone(phone);
+		} else {
+			findByIMEI(Utility.deviceImei(getApplicationContext()), null);
+		}
 	}
 
-	private void setMarkerPointer(DeviceLocation deviceData) {
+	private String formatDateInfo(long time) {
+		String output = "Last online: ";
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm z");
+		output += formatter.format(new Date(Long.parseLong(String.valueOf(time))));
+		return output;
+	}
+
+	private void setMarker(MarkerOptions marker) {
 		gmap.clear();
-		geoCord = new LatLng(deviceData.getLatitude(), deviceData.getLongitude());
-		marker = new MarkerOptions();
-		marker.position(geoCord);
-		marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
+		gmap.setMyLocationEnabled(true);
 		gmap.addMarker(marker);
-		gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(geoCord, 15));
+		gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
 	}
 
 	private Bitmap mapMarker(Uri uri) {
@@ -156,148 +136,86 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		return marker;
 	}
 
-	private String getDeviceImei() {
-		TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		String imei;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-				//EasyPermission module will handle the permission
-			}
-		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			imei = tm.getImei();
-		} else {
-			imei = tm.getDeviceId();
-		}
-		return imei;
-	}
-
-	@AfterPermissionGranted(123)
-	public void permissionChecking() {
-		String[] perms = {
-				Manifest.permission.INTERNET,
-				Manifest.permission.ACCESS_NETWORK_STATE,
-				Manifest.permission.ACCESS_COARSE_LOCATION,
-				Manifest.permission.ACCESS_FINE_LOCATION,
-				Manifest.permission.READ_PHONE_STATE,
-				Manifest.permission.READ_EXTERNAL_STORAGE,
-				Manifest.permission.WRITE_EXTERNAL_STORAGE,
-				Manifest.permission.FOREGROUND_SERVICE
-		};
-		if (EasyPermissions.hasPermissions(this, perms)) {
-			hasPermission = true;
-		} else {
-			hasPermission = false;
-			EasyPermissions.requestPermissions(this, getString(R.string.permission_note), 123, perms);
-		}
-	}
-
-	@Override
-	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-
-	}
-
-	@Override
-	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-			new AppSettingsDialog.Builder(this).build().show();
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-	}
-
 	@Override
 	public void onClick(View v) {
 		if(v == backBtn) {
 			super.onBackPressed();
 		} else if(v == selfTrace) {
-			MyLocation();
 			search.setQuery("", false);
 			search.clearFocus();
+			showMyLocation();
 		}
-	}
-
-	private void findByimei(String imei) {
-		fDatabase.getReference("Devices").child(imei).addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				if(dataSnapshot.getValue()!=null) {
-					DeviceLocation deviceData = dataSnapshot.getValue(DeviceLocation.class);
-					setMarkerPointer(deviceData);
-				} else {
-					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_LONG).show();
-				}
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-				Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-			}
-		});
-	}
-
-	private void findByMobile(final String mobile) {
-
-		fDatabase.getReference("Users").orderByChild("mobile").equalTo(mobile).addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
-				if(dataSnapshot.getValue()!=null) {
-					for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-						final User userData = snapshot.getValue(User.class);
-
-						fDatabase.getReference("Devices").child(userData.getImei()).addValueEventListener(new ValueEventListener() {
-							@Override
-							public void onDataChange(@NonNull DataSnapshot data_Snapshot) {
-								if(data_Snapshot.getValue()!=null) {
-									DeviceLocation deviceData = data_Snapshot.getValue(DeviceLocation.class);
-									setMarkerPointer(deviceData);
-
-									sendNotification(mAuth.getCurrentUser().getDisplayName() + " seen your location.", mAuth.getUid(), dataSnapshot.getKey(), "Time");
-								} else {
-									Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_LONG).show();
-								}
-							}
-
-							@Override
-							public void onCancelled(@NonNull DatabaseError databaseError) {
-								Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-							}
-						});
-					}
-				} else {
-					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_LONG).show();
-				}
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-
-			}
-		});
-	}
-
-	private void sendNotification(String message, String from, String to, String time) {
-		fDatabase.getReference("Notifications").child(to).child("message").setValue(message);
-		fDatabase.getReference("Notifications").child(to).child(from).setValue(from);
-		fDatabase.getReference("Notifications").child(to).child(time).setValue(time);
 	}
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
-		if(query.charAt(0) == '+') {
-			findByMobile(query);
+		query = query.trim();
+		if(query.length() == 15) {
+			findByIMEI(query, null);
 		} else {
-			findByimei(query);
+			findByPhone(query);
 		}
 		return false;
 	}
 
 	@Override
 	public boolean onQueryTextChange(String newText) {
+		if(newText.trim().length()==0) {
+			showMyLocation();
+		}
 		return false;
+	}
+
+	private void findByIMEI(String imei, final User user) {
+
+		mDatabase.getReference("Devices").child(imei).addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				if(dataSnapshot.getValue()!=null) {
+					DeviceData data = dataSnapshot.getValue(DeviceData.class);
+					MarkerOptions marker = new MarkerOptions();
+
+					if(user!=null) {
+						marker.title(user.getName());
+						marker.snippet(formatDateInfo(data.getTime()));
+						marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(Uri.parse(user.getPhoto()))));
+					} else {
+						marker.title(formatDateInfo(data.getTime()));
+						marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
+					}
+
+					marker.position(new LatLng(data.getLatitude(), data.getLongitude()));
+					setMarker(marker);
+				} else {
+					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+
+			}
+		});
+	}
+
+	private void findByPhone(String number) {
+		mDatabase.getReference("Users").orderByChild("phone").equalTo(number).addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				if(dataSnapshot.getValue()!=null) {
+					for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+						User userData = snapshot.getValue(User.class);
+						findByIMEI(userData.getImei(), userData);
+					}
+				} else {
+					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+
+			}
+		});
 	}
 }

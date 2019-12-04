@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorPrimary"
     android:orientation="vertical"
     tools:context=".PhoneverificationActivity">
 
@@ -43,16 +43,16 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:background="@color/colorLightDark"
-        android:orientation="vertical"
-        android:padding="30dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/verification_cardHead"
+        android:backgroundTint="@color/colorLight"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
+            android:padding="30dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <TextView
                 android:text="@string/label_otp"
@@ -81,28 +81,28 @@
                 android:visibility="invisible"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="10dp"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/colorPrimary"
                 android:text="@string/label_otp_request"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:gravity="bottom"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <Button
-                android:layout_marginBottom="2dp"
-                android:id="@+id/verify_btn"
-                android:textColor="@color/colorWhite"
-                style="@style/AppButton"
-                android:background="@drawable/btn_primary"
-                android:text="@string/continue_str"
+            <LinearLayout
+                android:gravity="bottom"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent">
+                <Button
+                    android:layout_marginBottom="2dp"
+                    android:id="@+id/verify_btn"
+                    android:textColor="@color/colorWhite"
+                    style="@style/AppButton"
+                    android:background="@drawable/btn_primary"
+                    android:text="@string/continue_str"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
         </LinearLayout>
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>
