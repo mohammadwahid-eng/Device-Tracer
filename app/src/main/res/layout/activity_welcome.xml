@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".WelcomeActivity">
 
     <LinearLayout
+        android:background="@color/colorPrimary"
         android:gravity="bottom"
         android:padding="30dp"
         android:orientation="vertical"
@@ -39,51 +39,44 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/welcome_cardHead"
-        android:backgroundTint="@color/colorLight"
+    <LinearLayout
+        android:background="@color/colorLight"
+        android:orientation="vertical"
+        android:padding="30dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:textSize="20sp"
+            android:textColor="@color/colorDark"
+            android:text="@string/create_account_or_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
         <LinearLayout
+            android:gravity="bottom"
             android:orientation="vertical"
-            android:padding="30dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:textSize="20sp"
-                android:textColor="@color/colorDark"
-                android:text="@string/create_account_or_login"
+            <com.google.android.material.button.MaterialButton
+                style="@style/AppButton"
+                android:id="@+id/welcome_regBtn"
+                android:backgroundTint="@color/colorPrimary"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:text="@string/create_account"/>
 
-            <LinearLayout
-                android:gravity="bottom"
-                android:orientation="vertical"
+            <com.google.android.material.button.MaterialButton
+                style="@style/AppButton"
+                android:id="@+id/welcome_loginBtn"
+                android:textColor="@color/colorPrimaryDark"
+                android:backgroundTint="@color/colorSecondary"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:text="@string/label_login"/>
 
-                <Button
-                    android:id="@+id/welcome_regBtn"
-                    android:textColor="@color/colorWhite"
-                    style="@style/AppButton"
-                    android:background="@drawable/btn_primary"
-                    android:text="@string/create_account"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:layout_marginBottom="2dp"
-                    android:id="@+id/welcome_loginBtn"
-                    android:layout_marginTop="15dp"
-                    android:textColor="@color/colorPrimaryDark"
-                    style="@style/AppButton"
-                    android:background="@drawable/btn_secondary"
-                    android:text="@string/login"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
 </LinearLayout>

@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -24,16 +25,17 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-	private CardView cardHead;
 	private ImageView _backBtn;
-	private EditText _login_email, _login_password;
-	private Button _login_btn;
+	private TextInputEditText _login_email, _login_password;
+	private MaterialButton _login_btn;
 	private TextView _login_forgotBtn;
 	private FirebaseAuth mAuth;
 	private ProgressDialog progressDialog;
@@ -102,9 +104,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 		_login_forgotBtn.setOnClickListener(this);
 		_login_btn.setOnClickListener(this);
-
-		cardHead = findViewById(R.id.login_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 
 	}
 

@@ -21,6 +21,8 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -31,11 +33,10 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 
 	public static Activity activity;
 
-	private CardView cardHead;
 
 	private ImageView _backBtn;
-	private EditText _field_name, _field_email, _field_password;
-	private Button _regBtn;
+	private TextInputEditText _field_name, _field_email, _field_password;
+	private MaterialButton _regBtn;
 
 	private FirebaseAuth mAuth;
 	private FirebaseDatabase mDatabase;
@@ -80,8 +81,6 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 		progressDialog.setMessage("Processing");
 		progressDialog.setCanceledOnTouchOutside(false);
 
-		cardHead = findViewById(R.id.reg_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	@Override

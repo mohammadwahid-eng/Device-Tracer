@@ -9,9 +9,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.hbb20.CountryCodePicker;
+
+import java.util.ArrayList;
 
 public class PhoneActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -19,7 +22,6 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 	private CountryCodePicker cCode;
 	private EditText phoneNumber;
 	private Button phoneBtn;
-	private CardView cardHead;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +34,6 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 		backBtn = findViewById(R.id.phone_backBtn);
 		backBtn.setOnClickListener(this);
 		phoneBtn.setOnClickListener(this);
-
-		cardHead = findViewById(R.id.phone_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	@Override

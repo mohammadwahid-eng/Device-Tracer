@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
@@ -93,6 +92,12 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
 		showProfileData();
 
+
+
+
+
+
+
 		getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new DashboardFragment()).commit();
 	}
 
@@ -168,11 +173,11 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 		}
 		else if(item.getItemId() == R.id.nav_profile) {
 			getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new ProfileFragment()).commit();
-			this.setTitle(R.string.label_profile);
+			this.setTitle(R.string.label_my_profile);
 		}
 		else if(item.getItemId() == R.id.nav_friends) {
 			getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new FriendsFragment()).commit();
-			this.setTitle(R.string.label_friends);
+			this.setTitle(R.string.label_who_can_see_me);
 		}
 		else if(item.getItemId() == R.id.nav_notifications) {
 			getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new NotificationsFragment()).commit();

@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 public class PhoneverificationActivity extends AppCompatActivity implements View.OnClickListener {
 
-	private CardView cardHead;
 	private ImageView _backBtn;
 	private Button verifyBtn;
 	private EditText otp;
@@ -68,9 +67,6 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 		String phoneNumber = getIntent().getStringExtra("phone_number");
 		storenumber = phoneNumber;
 		sendVerificationCode(phoneNumber);
-
-		cardHead = findViewById(R.id.verification_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	private void sendVerificationCode(String number) {
@@ -84,7 +80,7 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 
 	private void countdown() {
 		otp_timer.setVisibility(View.VISIBLE);
-		otpRequest.setVisibility(View.INVISIBLE);
+		otpRequest.setVisibility(View.GONE);
 		if(cTimer!=null) {
 			cTimer.cancel();
 		}

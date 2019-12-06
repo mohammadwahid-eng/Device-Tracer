@@ -110,8 +110,10 @@ public class LocationTrackingService extends Service {
 
 	private void uploadDeviceLocation(Location location) {
 		try {
+			Log.d(TAG, "Uploading");
 			fDatabase.getReference("Devices").child(Utility.deviceImei(getApplicationContext())).setValue(new DeviceData(location.getLatitude(), location.getLongitude(), location.getTime()));
 		} catch (Exception ex) {
+			Log.d(TAG, "Uploading fail");
 			//Failed to upload device location.
 		}
 	}

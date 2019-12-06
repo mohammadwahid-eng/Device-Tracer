@@ -1,20 +1,19 @@
 package com.devicetracer;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+
+import com.google.android.material.button.MaterialButton;
 
 
 public class WelcomeActivity extends AppCompatActivity implements View.OnClickListener{
 	public static Activity activity;
 
-	private Button _regBtn, _loginBtn;
-	private CardView cardHead;
+	private MaterialButton _regBtn, _loginBtn;
 
 	private PermissionManager mPermission;
 	private String[] mPerms;
@@ -39,10 +38,6 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
 
 		_regBtn.setOnClickListener(this);
 		_loginBtn.setOnClickListener(this);
-
-		cardHead = findViewById(R.id.welcome_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
-
 	}
 
 	@Override

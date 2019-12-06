@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
@@ -51,7 +53,6 @@ import static android.app.Activity.RESULT_OK;
 
 public class ProfileFragment extends Fragment implements View.OnClickListener {
 
-	private CardView cardHead;
 
 	private FirebaseAuth mAuth;
 	private FirebaseDatabase mDatabase;
@@ -59,9 +60,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 	private final int PICK_IMAGE_REQUEST = 1;
 
-	private TextView _pname, _name, _mobile, _imei;
+	private TextInputEditText _name, _phone;
 	private CircleImageView _avatar;
-	private Button _updateBtn, _bindBtn;
 	private ProgressDialog progressDialog;
 
 	private PermissionManager mPermission;
@@ -91,23 +91,16 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		progressDialog.setMessage("Processing");
 		progressDialog.setCanceledOnTouchOutside(false);
 
-		_pname          = view.findViewById(R.id.profile_name);
+
 		_name           = view.findViewById(R.id.profile_edit_name);
-		_mobile         = view.findViewById(R.id.profile_edit_mobile);
-		_imei          = view.findViewById(R.id.profile_imei);
+		_phone         = view.findViewById(R.id.profile_edit_phone);
 		_avatar         = view.findViewById(R.id.profile_avatar);
-		_updateBtn      = view.findViewById(R.id.profile_updateBtn);
-		_bindBtn      = view.findViewById(R.id.profile_bindingBtn);
 
 		showProfileData();
 
-		_mobile.setOnClickListener(this);
+		_phone.setOnClickListener(this);
 		_avatar.setOnClickListener(this);
-		_updateBtn.setOnClickListener(this);
-		_bindBtn.setOnClickListener(this);
 
-		cardHead = view.findViewById(R.id.profile_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 
 	}
 
@@ -117,10 +110,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				if(dataSnapshot.getValue()!=null) {
 					User currentUser = dataSnapshot.getValue(User.class);
-					_pname.setText(currentUser.getName());
 					_name.setText(currentUser.getName());
-					_mobile.setText(currentUser.getPhone());
-					_imei.setText(currentUser.getImei());
+					_phone.setText(currentUser.getPhone());
 
 					if(currentUser.getPhoto().length()>0) {
 						Picasso.get().load(currentUser.getPhoto()).placeholder(R.drawable.ic_preloader).error(R.drawable.ic_avatar).into(_avatar);
@@ -144,42 +135,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			return;
 		}
 
-
 		if(v == _avatar) {
 			Intent intent = new Intent();
 			intent.setType("image/*");
 			intent.setAction(Intent.ACTION_GET_CONTENT);
 			startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
-		} else if(v == _mobile) {
+		} else if(v == _phone) {
 			Intent _mobileScreen = new Intent(getContext(), PhoneActivity.class);
 			startActivity(_mobileScreen);
-		} else if(v == _bindBtn) {
-
-			AlertDialog.Builder popup = new AlertDialog.Builder(getActivity());
-			popup.setMessage("Do you really want to bind the device with your account?");
-			popup.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					mDatabase.getReference("Users").child(mAuth.getUid()).child("imei").setValue(Utility.deviceImei(getActivity()));
-					Toast.makeText(getContext(), "Device binding complete.", Toast.LENGTH_SHORT).show();
-				}
-			});
-			popup.setNegativeButton("No", null);
-			AlertDialog alert = popup.create();
-			alert.show();
-
-		} else if(v == _updateBtn) {
-			final String name = _name.getText().toString().trim();
-
-			if(name.equals("")) {
-				_name.setError("Name is required.");
-				_name.requestFocus();
-				return;
-			}
-
-			mDatabase.getReference("Users").child(mAuth.getUid()).child("name").setValue(name);
-			Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
 		}
 	}
 

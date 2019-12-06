@@ -25,21 +25,24 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class TraceActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, SearchView.OnQueryTextListener {
+public class TraceActivity extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener, GoogleMap.OnMarkerClickListener, SearchView.OnQueryTextListener {
 
 	private GoogleMap gmap;
 
@@ -88,6 +91,8 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		gmap = googleMap;
+		gmap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.gmap_style));
+		gmap.setOnMarkerClickListener(this);
 		showMyLocation();
 	}
 
@@ -100,18 +105,17 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		}
 	}
 
-	private String formatDateInfo(long time) {
-		String output = "Last online: ";
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm z");
-		output += formatter.format(new Date(Long.parseLong(String.valueOf(time))));
-		return output;
-	}
-
-	private void setMarker(MarkerOptions marker) {
+	private void setMarker(MarkerOptions markerOptions, User user) {
 		gmap.clear();
+		gmap.setOnMarkerClickListener(this);
 		gmap.setMyLocationEnabled(true);
-		gmap.addMarker(marker);
-		gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15));
+		gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerOptions.getPosition(), 15));
+
+		Marker mMarker = gmap.addMarker(markerOptions);
+		mMarker.showInfoWindow();
+		if(user!=null) {
+			mMarker.setTag(user);
+		}
 	}
 
 	private Bitmap mapMarker(Uri uri) {
@@ -173,19 +177,19 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				if(dataSnapshot.getValue()!=null) {
 					DeviceData data = dataSnapshot.getValue(DeviceData.class);
-					MarkerOptions marker = new MarkerOptions();
-
+					MarkerOptions markerOptions = new MarkerOptions();
 					if(user!=null) {
-						marker.title(user.getName());
-						marker.snippet(formatDateInfo(data.getTime()));
-						marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(Uri.parse(user.getPhoto()))));
+						markerOptions.title(user.getName());
+						markerOptions.snippet("Last online: " + Utility.realTime(data.getTime()));
+						markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(Uri.parse(user.getPhoto()))));
 					} else {
-						marker.title(formatDateInfo(data.getTime()));
-						marker.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
+						markerOptions.title("Last online: " + Utility.realTime(data.getTime()));
+						markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mapMarker(null)));
 					}
 
-					marker.position(new LatLng(data.getLatitude(), data.getLongitude()));
-					setMarker(marker);
+					markerOptions.position(new LatLng(data.getLatitude(), data.getLongitude()));
+					setMarker(markerOptions, user);
+
 				} else {
 					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_SHORT).show();
 				}
@@ -206,6 +210,29 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 					for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
 						User userData = snapshot.getValue(User.class);
 						findByIMEI(userData.getImei(), userData);
+
+						if(!userData.getUid().equals(mAuth.getUid())) {
+							final DatabaseReference dbRef = mDatabase.getReference("Users").child(userData.getUid()).child("notifications");
+							dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+								@Override
+								public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+									LocationNotificationManager notification = new LocationNotificationManager(
+											dataSnapshot.getChildrenCount(),
+											mAuth.getUid(),
+											"SEEN",
+											System.currentTimeMillis(),
+											false
+									);
+
+									dbRef.child(String.valueOf(dataSnapshot.getChildrenCount())).setValue(notification);
+								}
+
+								@Override
+								public void onCancelled(@NonNull DatabaseError databaseError) {
+
+								}
+							});
+						}
 					}
 				} else {
 					Toast.makeText(getApplicationContext(), "No device found", Toast.LENGTH_SHORT).show();
@@ -217,5 +244,15 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 
 			}
 		});
+	}
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+		System.out.println("Clicked");
+		User user = (User) marker.getTag();
+		if(user!=null) {
+			System.out.println(user.getImei());
+		}
+		return false;
 	}
 }

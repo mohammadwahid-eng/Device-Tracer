@@ -16,14 +16,15 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class ForgotActivity extends AppCompatActivity implements View.OnClickListener {
-	private CardView cardHead;
 	private ImageView _backBtn;
-	private EditText _forgot_email;
-	private Button _forgot_btn;
+	private TextInputEditText _forgot_email;
+	private MaterialButton _forgot_btn;
 	private FirebaseAuth mAuth;
 	private ProgressDialog progressDialog;
 
@@ -45,9 +46,6 @@ public class ForgotActivity extends AppCompatActivity implements View.OnClickLis
 		progressDialog = new ProgressDialog(ForgotActivity.this, R.style.AppProgressDialog);
 		progressDialog.setMessage("Processing");
 		progressDialog.setCanceledOnTouchOutside(false);
-
-		cardHead = findViewById(R.id.forgot_cardHead);
-		cardHead.setBackgroundResource(R.drawable.bg_light_cardhead);
 	}
 
 	@Override

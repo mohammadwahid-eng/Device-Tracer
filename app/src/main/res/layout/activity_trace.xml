@@ -29,13 +29,13 @@
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/trace_search"
+            android:theme="@style/AppSearchViewNav"
             android:inputType="phone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:searchIcon="@null"
             app:queryHint="@string/search_hints"
-            app:iconifiedByDefault="false"
-            app:theme="@style/AppSearchViewNav"/>
+            app:iconifiedByDefault="false"/>
     </LinearLayout>
 
 
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@color/colorSecondary"
             app:cardCornerRadius="500dp"
             android:layout_width="45dp"
             android:layout_height="45dp">

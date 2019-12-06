@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="30dp"
     android:background="@color/colorLight"
+    android:padding="30dp"
     tools:context=".ResetActivity">
 
     <ImageView
@@ -26,25 +26,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:layout_marginTop="40dp"
+        style="@style/AppButton"
         android:id="@+id/reset_email_btn"
         android:textColor="@color/colorWhite"
-        style="@style/AppButton"
-        android:background="@drawable/btn_primary"
-        android:text="@string/go_to_email"
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="@string/go_to_email"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:layout_marginTop="15dp"
-        android:id="@+id/reset_login_btn"
-        android:layout_marginBottom="2dp"
-        android:textColor="@color/colorPrimaryDark"
         style="@style/AppButton"
-        android:background="@drawable/btn_secondary"
-        android:text="@string/back_to_login"
+        android:id="@+id/reset_login_btn"
+        android:textColor="@color/colorPrimaryDark"
+        android:backgroundTint="@color/colorSecondary"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="@string/back_to_login"/>
 
 </LinearLayout>

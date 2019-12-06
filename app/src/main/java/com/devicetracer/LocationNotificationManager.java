@@ -1,25 +1,37 @@
 package com.devicetracer;
 
 public class LocationNotificationManager {
-	private String sender;
+	private long notificationID;
+	private String senderID;
 	private String type;
 	private long time;
+	private boolean notificationSeen;
 
 	public LocationNotificationManager() {
 	}
 
-	public LocationNotificationManager(String sender, String type, long time) {
-		this.sender = sender;
+	public LocationNotificationManager(long notificationID, String senderID, String type, long time, boolean notificationSeen) {
+		this.notificationID = notificationID;
+		this.senderID = senderID;
 		this.type = type;
 		this.time = time;
+		this.notificationSeen = notificationSeen;
 	}
 
-	public String getSender() {
-		return sender;
+	public long getNotificationID() {
+		return notificationID;
 	}
 
-	public void setSender(String sender) {
-		this.sender = sender;
+	public void setNotificationID(long notificationID) {
+		this.notificationID = notificationID;
+	}
+
+	public String getSenderID() {
+		return senderID;
+	}
+
+	public void setSenderID(String senderID) {
+		this.senderID = senderID;
 	}
 
 	public String getType() {
@@ -36,5 +48,13 @@ public class LocationNotificationManager {
 
 	public void setTime(long time) {
 		this.time = time;
+	}
+
+	public boolean isNotificationSeen() {
+		return notificationSeen;
+	}
+
+	public void setNotificationSeen(boolean notificationSeen) {
+		this.notificationSeen = notificationSeen;
 	}
 }
