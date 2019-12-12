@@ -2,18 +2,14 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -26,7 +22,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class RegistrationActivity extends AppCompatActivity implements View.OnClickListener{
@@ -141,8 +136,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 								if(task.isSuccessful()) {
 									finish();
 
-									mDatabase.getReference("Users").child(mAuth.getUid()).setValue(new User(mAuth.getUid(), name, "", Utility.deviceImei(getApplicationContext()), ""));
-									mDatabase.getReference("Devices").child(Utility.deviceImei(activity)).setValue(new DeviceData(0, 0, 0));
+									mDatabase.getReference("Users").child(mAuth.getUid()).setValue(new User(mAuth.getUid(), name, email, "", "", ""));
 
 									Intent _emailScreen = new Intent(RegistrationActivity.this, ResetActivity.class);
 									startActivity(_emailScreen);

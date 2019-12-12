@@ -2,10 +2,9 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,7 +38,7 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 	private CountDownTimer cTimer = null;
 
 	private FirebaseAuth mAuth;
-	private FirebaseDatabase fDatabase;
+	private FirebaseDatabase mDatabase;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 		setContentView(R.layout.activity_phoneverification);
 
 		mAuth = FirebaseAuth.getInstance();
-		fDatabase   = FirebaseDatabase.getInstance();
+		mDatabase = FirebaseDatabase.getInstance();
 
 		_backBtn = findViewById(R.id.verify_backBtn);
 		verifyBtn = findViewById(R.id.verify_btn);
@@ -117,7 +117,16 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 
 		@Override
 		public void onVerificationFailed(FirebaseException e) {
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			new MaterialAlertDialogBuilder(PhoneverificationActivity.this)
+				.setTitle("Phone verification failed")
+				.setMessage("Error: "+ e.getMessage())
+				.setCancelable(false)
+				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				}).show();
 		}
 	};
 
@@ -128,14 +137,38 @@ public class PhoneverificationActivity extends AppCompatActivity implements View
 
 	private void verifyNumber(PhoneAuthCredential credential) {
 		progressDialog.show();
+		if(mAuth.getCurrentUser().getPhoneNumber()!=null) {
+			updateNumber(credential);
+		} else {
+			linkNumber(credential);
+		}
+	}
+
+	private void linkNumber(PhoneAuthCredential credential) {
 		mAuth.getCurrentUser().linkWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 			@Override
 			public void onComplete(@NonNull Task<AuthResult> task) {
 				progressDialog.hide();
 				finish();
 				if(task.isSuccessful()) {
-					fDatabase.getReference("Users").child(mAuth.getUid()).child("phone").setValue(storenumber);
+					mDatabase.getReference("Users").child(mAuth.getUid()).child("phone").setValue(storenumber);
 					Toast.makeText(getApplicationContext(), "Number added successfully", Toast.LENGTH_SHORT).show();
+				}else {
+					Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+				}
+			}
+		});
+	}
+
+	private void updateNumber(PhoneAuthCredential credential) {
+		mAuth.getCurrentUser().updatePhoneNumber(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+			@Override
+			public void onComplete(@NonNull Task<Void> task) {
+				progressDialog.hide();
+				finish();
+				if(task.isSuccessful()) {
+					mDatabase.getReference("Users").child(mAuth.getUid()).child("phone").setValue(storenumber);
+					Toast.makeText(getApplicationContext(), "Number updated successfully", Toast.LENGTH_SHORT).show();
 				}else {
 					Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
 				}

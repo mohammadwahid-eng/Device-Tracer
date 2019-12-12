@@ -2,11 +2,8 @@ package com.devicetracer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -14,11 +11,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +20,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -159,36 +154,33 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 							startActivity(_dashboardScreen);
 						} else {
 
-							AlertDialog.Builder popup = new AlertDialog.Builder(LoginActivity.this);
-							popup.setCancelable(false);
-							popup.setTitle("Account verification");
-							popup.setMessage("We sent a verification link to your email address after the registration process. Please verify your account from the link.");
-							popup.setIcon(R.drawable.ic_error);
-							popup.setPositiveButton("Ok", null);
-							popup.setNeutralButton("Resend Link", new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									FirebaseUser user = mAuth.getCurrentUser();
-									if(user!=null) {
-										user.reload();
-										user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-											@Override
-											public void onComplete(@NonNull Task<Void> task) {
-												if(task.isSuccessful()) {
-													finish();
-													Intent _emailScreen = new Intent(LoginActivity.this, ResetActivity.class);
-													startActivity(_emailScreen);
-												} else {
-													Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+							new MaterialAlertDialogBuilder(LoginActivity.this)
+								.setTitle("Account verification")
+								.setMessage("We sent a verification link to your email address after the registration process. Please verify your account from the link.")
+								.setCancelable(false)
+								.setIcon(R.drawable.ic_error)
+								.setPositiveButton("Ok", null)
+								.setNeutralButton("Resend Link", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										FirebaseUser user = mAuth.getCurrentUser();
+										if(user!=null) {
+											user.reload();
+											user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+												@Override
+												public void onComplete(@NonNull Task<Void> task) {
+													if(task.isSuccessful()) {
+														finish();
+														Intent _emailScreen = new Intent(LoginActivity.this, ResetActivity.class);
+														startActivity(_emailScreen);
+													} else {
+														Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+													}
 												}
-											}
-										});
+											});
+										}
 									}
-								}
-							});
-
-							AlertDialog alert = popup.create();
-							alert.show();
+								}).show();
 						}
 					} else {
 						Toast.makeText(getApplicationContext(), "Email/Password didn't matched.", Toast.LENGTH_SHORT).show();

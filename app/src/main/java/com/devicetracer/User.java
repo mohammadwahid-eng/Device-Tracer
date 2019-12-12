@@ -5,6 +5,7 @@ import android.net.Uri;
 public class User {
 	private String uid;
 	private String name;
+	private String email;
 	private String phone;
 	private String imei;
 	private String photo;
@@ -12,9 +13,10 @@ public class User {
 	public User() {
 	}
 
-	public User(String uid, String name, String phone, String imei, String photo) {
+	public User(String uid, String name, String email, String phone, String imei, String photo) {
 		this.uid = uid;
 		this.name = name;
+		this.email = email;
 		this.phone = phone;
 		this.imei = imei;
 		this.photo = photo;
@@ -34,6 +36,14 @@ public class User {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPhone() {

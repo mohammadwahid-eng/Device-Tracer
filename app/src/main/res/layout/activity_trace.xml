@@ -47,14 +47,29 @@
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/trace_self"
             android:backgroundTint="@color/colorSecondary"
             app:cardCornerRadius="500dp"
             android:layout_width="45dp"
             android:layout_height="45dp">
             <ImageView
-                android:id="@+id/trace_self"
                 android:scaleType="center"
                 android:src="@drawable/ic_my_location"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </androidx.cardview.widget.CardView>
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/trace_sync"
+            android:backgroundTint="@color/colorDark"
+            android:layout_marginLeft="10dp"
+            app:cardCornerRadius="500dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp">
+            <ImageView
+                android:scaleType="center"
+                android:src="@drawable/ic_sync"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </androidx.cardview.widget.CardView>

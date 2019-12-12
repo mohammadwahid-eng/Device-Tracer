@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Binder;
@@ -14,12 +13,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -45,7 +41,7 @@ public class LocationTrackingService extends Service {
 	private boolean mChangingConfiguration = false;
 
 	private FirebaseAuth mAuth;
-	private FirebaseDatabase fDatabase;
+	private FirebaseDatabase mDatabase;
 
 	public LocationTrackingService() {
 
@@ -71,7 +67,7 @@ public class LocationTrackingService extends Service {
 		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		mAuth = FirebaseAuth.getInstance();
-		fDatabase = FirebaseDatabase.getInstance();
+		mDatabase = FirebaseDatabase.getInstance();
 	}
 
 	private void getLastLocation() {
@@ -110,10 +106,8 @@ public class LocationTrackingService extends Service {
 
 	private void uploadDeviceLocation(Location location) {
 		try {
-			Log.d(TAG, "Uploading");
-			fDatabase.getReference("Devices").child(Utility.deviceImei(getApplicationContext())).setValue(new DeviceData(location.getLatitude(), location.getLongitude(), location.getTime()));
+			mDatabase.getReference("Devices").child(Utility.deviceImei(getApplicationContext())).setValue(new DeviceData(location.getLatitude(), location.getLongitude(), location.getTime()));
 		} catch (Exception ex) {
-			Log.d(TAG, "Uploading fail");
 			//Failed to upload device location.
 		}
 	}

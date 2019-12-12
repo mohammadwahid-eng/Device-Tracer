@@ -18,9 +18,11 @@
     <string name="back_to_login">Back to login</string>
     <string name="choose_email_client">Choose email client</string>
     <string name="label_name">Name</string>
+    <string name="label_new_name">New name</string>
     <string name="label_email">Email Address</string>
     <string name="label_phone">Phone Number</string>
     <string name="label_password">Password</string>
+    <string name="label_change_password">Change your password</string>
     <string name="label_imei">IMEI</string>
     <string name="label_forgot">Forgot your password?</string>
     <string name="label_click_here">Click here.</string>
@@ -40,6 +42,7 @@
     <string name="nav_close">Close</string>
     <string name="phone_hints">Enter your phone number.</string>
     <string name="label_set_phone">Set phone number</string>
+    <string name="label_set_name">Update your name</string>
     <string name="phone_note">We will send a code (via SMS text message) to your phone number.</string>
     <string name="otp_note">Please enter the OTP that sent to your number and click continue.</string>
     <string name="search_hints">Search by imei or phone number</string>
@@ -47,4 +50,11 @@
     <string name="label_verification">Verification</string>
     <string name="label_otp">OTP</string>
     <string name="label_otp_request">Resend OTP code</string>
+    <string name="label_binding">Bind me with this device</string>
+    <string name="label_old_password">Old password</string>
+    <string name="label_new_password">New password</string>
+    <string name="label_confirm_new_password">Confirm new password</string>
+    <string name="label_binding_code">Binding code</string>
+    <string name="label_set_binding">Device binding</string>
+    <string name="binding_note">Enter the binding code that sent to your email.</string>
 </resources>

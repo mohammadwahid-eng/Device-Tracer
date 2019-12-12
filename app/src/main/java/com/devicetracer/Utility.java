@@ -1,9 +1,12 @@
 package com.devicetracer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -71,5 +74,13 @@ public class Utility {
 		} else {
 			return diff / DAY_MILLIS + " days ago";
 		}
+	}
+
+	static void setbindingCode(Context context, int code) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("binding_code", code).apply();
+	}
+
+	static int getbindingCode(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getInt("binding_code", 0);
 	}
 }

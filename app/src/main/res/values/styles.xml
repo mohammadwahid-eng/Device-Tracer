@@ -8,7 +8,7 @@
     </style>
 
     <style name="AppEditTextWrapper" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxBackgroundColor">#ffffff</item>
+        <item name="boxBackgroundColor">@color/colorWhite</item>
         <item name="boxStrokeWidth">.5dp</item>
         <item name="boxStrokeWidthFocused">.5dp</item>
     </style>
@@ -33,8 +33,10 @@
         <item name="colorAccent">@color/colorPrimary</item>
     </style>
 
-    <style name="AppSwitch" parent="Theme.AppCompat.Light">
-        <item name="android:colorControlActivated">@color/colorPrimary</item>
+    <style name="AppDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 
     <style name="AppSearchViewNav" parent="Widget.AppCompat.SearchView">

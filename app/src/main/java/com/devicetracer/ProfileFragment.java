@@ -1,28 +1,20 @@
 package com.devicetracer;
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
-import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +36,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.util.Random;
 
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -60,9 +52,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
 	private final int PICK_IMAGE_REQUEST = 1;
 
+	private TextView _pname, _pemail;
 	private TextInputEditText _name, _phone;
 	private CircleImageView _avatar;
 	private ProgressDialog progressDialog;
+
+	private MaterialButton _passwordUpdateBtn, _bindingBtn;
 
 	private PermissionManager mPermission;
 	private String[] mPerms;
@@ -92,16 +87,22 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 		progressDialog.setCanceledOnTouchOutside(false);
 
 
-		_name           = view.findViewById(R.id.profile_edit_name);
-		_phone         = view.findViewById(R.id.profile_edit_phone);
-		_avatar         = view.findViewById(R.id.profile_avatar);
+		_name            = view.findViewById(R.id.profile_edit_name);
+		_phone           = view.findViewById(R.id.profile_edit_phone);
+		_avatar          = view.findViewById(R.id.profile_avatar);
+		_pname           = view.findViewById(R.id.profile_name);
+		_pemail          = view.findViewById(R.id.profile_email);
+		_passwordUpdateBtn = view.findViewById(R.id.profile_edit_password);
+		_bindingBtn = view.findViewById(R.id.profile_binding);
+
 
 		showProfileData();
 
+		_name.setOnClickListener(this);
 		_phone.setOnClickListener(this);
 		_avatar.setOnClickListener(this);
-
-
+		_passwordUpdateBtn.setOnClickListener(this);
+		_bindingBtn.setOnClickListener(this);
 	}
 
 	private void showProfileData() {
@@ -110,6 +111,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				if(dataSnapshot.getValue()!=null) {
 					User currentUser = dataSnapshot.getValue(User.class);
+
+					_pname.setText(currentUser.getName());
+					_pemail.setText(currentUser.getEmail());
+
 					_name.setText(currentUser.getName());
 					_phone.setText(currentUser.getPhone());
 
@@ -134,16 +139,48 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			mPermission.requestPermission(mPerms);
 			return;
 		}
-
 		if(v == _avatar) {
 			Intent intent = new Intent();
 			intent.setType("image/*");
 			intent.setAction(Intent.ACTION_GET_CONTENT);
 			startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
+		} else if(v == _name) {
+			Intent _nameScreen = new Intent(getContext(), UpdateNameActivity.class);
+			startActivity(_nameScreen);
 		} else if(v == _phone) {
 			Intent _mobileScreen = new Intent(getContext(), PhoneActivity.class);
 			startActivity(_mobileScreen);
+		} else if(v == _phone) {
+			Intent _mobileScreen = new Intent(getContext(), PhoneActivity.class);
+			startActivity(_mobileScreen);
+		} else if(v == _passwordUpdateBtn) {
+			Intent _passwordScreen = new Intent(getContext(), UpdatePasswordActivity.class);
+			startActivity(_passwordScreen);
+		} else if(v == _bindingBtn) {
+			mDatabase.getReference("Users").orderByChild("imei").equalTo(Utility.deviceImei(getActivity())).addListenerForSingleValueEvent(new ValueEventListener() {
+				@Override
+				public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+					if(dataSnapshot.getValue()!=null) {
+						for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+							User userData = snapshot.getValue(User.class);
+
+							Intent _bindingScreen = new Intent(getContext(), BindingActivity.class);
+							_bindingScreen.putExtra("email", userData.getEmail());
+							_bindingScreen.putExtra("binding_code", "" + (new Random().nextInt((999999 - 111111) + 1) + 111111));
+							startActivity(_bindingScreen);
+						}
+					} else {
+						mDatabase.getReference("Users").child(mAuth.getUid()).child("imei").setValue(Utility.deviceImei(getActivity()));
+						Toast.makeText(getActivity(), "Device bounded successfully", Toast.LENGTH_SHORT).show();
+					}
+				}
+
+				@Override
+				public void onCancelled(@NonNull DatabaseError databaseError) {
+
+				}
+			});
 		}
 	}
 
@@ -201,4 +238,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 			updatePicture(data.getData());
 		}
 	}
+
+
 }

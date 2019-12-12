@@ -134,7 +134,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 					if(currentUser.getPhone().length()>0) {
 						_nav_identity.setText(currentUser.getPhone());
 					} else {
-						_nav_identity.setText(mAuth.getCurrentUser().getEmail());
+						_nav_identity.setText(currentUser.getEmail());
 					}
 				}
 			}

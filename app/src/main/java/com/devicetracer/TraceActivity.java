@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.cardview.widget.CardView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,9 +38,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
@@ -51,7 +50,7 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 
 	private ImageView backBtn;
 	private SearchView search;
-	private ImageView selfTrace;
+	private CardView selfTrace, syncTrace;
 	private ProgressDialog progressDialog;
 
 	private Location mLocation = null;
@@ -70,13 +69,17 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		search.setOnQueryTextListener(this);
 
 		selfTrace = findViewById(R.id.trace_self);
+		syncTrace = findViewById(R.id.trace_sync);
 		selfTrace.setOnClickListener(this);
+		syncTrace.setOnClickListener(this);
 
 		backBtn = findViewById(R.id.trace_backBtn);
 		backBtn.setOnClickListener(this);
 
 		progressDialog = new ProgressDialog(this, R.style.AppProgressDialog);
 		progressDialog.setCanceledOnTouchOutside(false);
+		progressDialog.setMessage("Loading...");
+		progressDialog.show();
 
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
@@ -107,8 +110,8 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 
 	private void setMarker(MarkerOptions markerOptions, User user) {
 		gmap.clear();
+		gmap.setTrafficEnabled(true);
 		gmap.setOnMarkerClickListener(this);
-		gmap.setMyLocationEnabled(true);
 		gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerOptions.getPosition(), 15));
 
 		Marker mMarker = gmap.addMarker(markerOptions);
@@ -148,12 +151,16 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 			search.setQuery("", false);
 			search.clearFocus();
 			showMyLocation();
+		} else if(v == syncTrace) {
+			search.setQuery(search.getQuery(), true);
 		}
 	}
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
 		query = query.trim();
+		progressDialog.setMessage("Searching...");
+		progressDialog.show();
 		if(query.length() == 15) {
 			findByIMEI(query, null);
 		} else {
@@ -175,6 +182,7 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 		mDatabase.getReference("Devices").child(imei).addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				progressDialog.hide();
 				if(dataSnapshot.getValue()!=null) {
 					DeviceData data = dataSnapshot.getValue(DeviceData.class);
 					MarkerOptions markerOptions = new MarkerOptions();
@@ -203,9 +211,11 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	}
 
 	private void findByPhone(String number) {
+
 		mDatabase.getReference("Users").orderByChild("phone").equalTo(number).addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				progressDialog.hide();
 				if(dataSnapshot.getValue()!=null) {
 					for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
 						User userData = snapshot.getValue(User.class);

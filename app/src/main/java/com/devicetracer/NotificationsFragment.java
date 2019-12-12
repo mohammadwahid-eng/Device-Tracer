@@ -18,6 +18,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class NotificationsFragment extends Fragment {
 	private ListView allNotification;
@@ -51,6 +53,7 @@ public class NotificationsFragment extends Fragment {
 						LocationNotificationManager notification = snapshot.getValue(LocationNotificationManager.class);
 						notifications.add(notification);
 					}
+					Collections.reverse(notifications);
 					adapter = new NotificationAdapter(getActivity().getApplicationContext(), notifications);
 					allNotification.setAdapter(adapter);
 				}
