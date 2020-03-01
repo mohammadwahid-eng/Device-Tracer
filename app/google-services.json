@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "729979544690-lnv8d7a7vtaa5ubph3kea7gfhhj6tcg9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.devicetracer",
+            "certificate_hash": "4886b0cf1164e5b26e758834a1df3d0b09b483b3"
+          }
+        },
+        {
           "client_id": "729979544690-ud2ovb58lk73q54t3jlptcqr4f4cmja9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -29,7 +37,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAa33ALtPYT8RIKgdsKlZEnD3ydfL3Ravo"
+          "current_key": "AIzaSyCkYm-wnefiON2UKj4DmWSd8ZRkeVWczOs"
         }
       ],
       "services": {

@@ -13,10 +13,6 @@
             android:icon="@drawable/ic_person"
             android:title="@string/label_my_profile"/>
 
-        <item android:id="@+id/nav_friends"
-            android:icon="@drawable/ic_eye"
-            android:title="@string/label_who_can_see_me"/>
-
         <item android:id="@+id/nav_notifications"
             android:icon="@drawable/ic_notifications"
             android:title="@string/label_notifications"/>

@@ -175,10 +175,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 			getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new ProfileFragment()).commit();
 			this.setTitle(R.string.label_my_profile);
 		}
-		else if(item.getItemId() == R.id.nav_friends) {
-			getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new FriendsFragment()).commit();
-			this.setTitle(R.string.label_who_can_see_me);
-		}
 		else if(item.getItemId() == R.id.nav_notifications) {
 			getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer, new NotificationsFragment()).commit();
 			this.setTitle(R.string.label_notifications);

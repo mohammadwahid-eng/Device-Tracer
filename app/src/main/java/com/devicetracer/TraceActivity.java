@@ -111,6 +111,7 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 	private void setMarker(MarkerOptions markerOptions, User user) {
 		gmap.clear();
 		gmap.setTrafficEnabled(true);
+		gmap.setMyLocationEnabled(true);
 		gmap.setOnMarkerClickListener(this);
 		gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerOptions.getPosition(), 15));
 
@@ -186,6 +187,7 @@ public class TraceActivity extends AppCompatActivity implements OnMapReadyCallba
 				if(dataSnapshot.getValue()!=null) {
 					DeviceData data = dataSnapshot.getValue(DeviceData.class);
 					MarkerOptions markerOptions = new MarkerOptions();
+
 					if(user!=null) {
 						markerOptions.title(user.getName());
 						markerOptions.snippet("Last online: " + Utility.realTime(data.getTime()));
